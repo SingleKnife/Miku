@@ -1,7 +1,5 @@
 package com.fyd.miku.model.pmd;
 
-import android.util.Log;
-
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,22 +24,29 @@ public class MikuModel {
         initMeshes(pmdFile.materials);
     }
 
+    public AllVertex getAllVertex() {
+        return allVertex;
+    }
+
+
+    public List<Mesh> getMeshes() {
+        return meshes;
+    }
+
     private void initMeshes(List<Material> materials) {
         meshes = new ArrayList<>();
         for(Material material : materials) {
             Mesh mesh = new Mesh();
             mesh.material = material;
             ByteBuffer indicesBuffer = allVertex.getIndices();
-            ByteBuffer verticesBuffer = allVertex.getVertices();
+            ByteBuffer verticesBuffer = allVertex.getAllVertices();
             indicesBuffer.position(material.vertexIndexOffset * AllVertex.BYTE_SIZE_PER_INDEX);
 
             HashMap<Short, Short> addedBone = new HashMap<>(); //<boneIndexOfAll, boneIndexOfMesh>
             short iterator = 0;
 
-            Log.i("mmd", "material: " + material.vertexIndexOffset);
             for(int i = material.vertexIndexOffset; i < material.vertexIndicesNum; i++) {
                 int vertexIndex = indicesBuffer.getShort();
-                Log.i("mmd", "verexIndices index: " + vertexIndex);
                 int boneInfoPos = vertexIndex  * AllVertex.BYTE_SIZE_PER_VERTEX
                         + AllVertex.FIRST_BONE_INDEX_OFFSET;
                 verticesBuffer.position(boneInfoPos);

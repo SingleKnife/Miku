@@ -69,6 +69,7 @@ public class PMDFile {
             }
             allVertex = new AllVertex();
             allVertex.setVertices(buffer);
+            allVertex.getAllVertices().position(0);
         }
     }
 
@@ -282,6 +283,5 @@ public class PMDFile {
             pmdStream.readFloats(joint.rotationSpringStiffness);
             joints.add(joint);
         }
-        Log.i("mmd", "available byte: " + pmdStream.available());
     }
 }

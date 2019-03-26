@@ -1,9 +1,5 @@
 package com.fyd.miku.model.pmd;
 
-import android.util.SparseArray;
-import android.util.SparseIntArray;
-
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -23,4 +19,14 @@ public class Mesh {
     public void addBone(short boneIndex) {
         boneIndexMapping.add(boneIndex);
     }
+
+    public int getIndexCount() {
+        return material.vertexIndicesNum;
+    }
+
+    public int getIndexOffset() {
+        return material.vertexIndexOffset;
+    }
+
+
 }

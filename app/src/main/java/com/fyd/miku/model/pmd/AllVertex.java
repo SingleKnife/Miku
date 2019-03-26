@@ -14,6 +14,10 @@ public class AllVertex {
     public static final int FIRST_BONE_WEIGHT_OFFSET = 36;
     public static final int EDGE_FLAG_OFFSET = 37;
 
+    public static final int VERTEX_COMPONENT_SIZE = 3;  //顶点坐标分量数x, y, z
+    public static final int NORMAL_COMPONENT_SIZE = 3;  //发现坐标分量数
+    public static final int UV_COMPONENT_SIZE = 2;      //贴图坐标分量数
+
     private ByteBuffer vertices;
     private ByteBuffer indices;
 
@@ -33,11 +37,32 @@ public class AllVertex {
                 .put(bytes);
     }
 
-    public ByteBuffer getVertices() {
+    public ByteBuffer getAllVertices() {
         return vertices;
     }
 
+    public ByteBuffer getPositionBuffer() {
+        vertices.position(0);
+        return vertices;
+    }
+
+    public ByteBuffer getNormalBuffer() {
+        vertices.position(NORMAL_OFFSET);
+        return vertices;
+    }
+
+    public ByteBuffer getUVBuffer() {
+        vertices.position(UV_OFFSET);
+        return vertices;
+    }
+
+    public ByteBuffer getIndices(int indexOffset) {
+        indices.position(indexOffset * BYTE_SIZE_PER_INDEX);
+        return indices;
+    }
+
     public ByteBuffer getIndices() {
+        indices.position(0);
         return indices;
     }
 }
