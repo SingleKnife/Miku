@@ -2,7 +2,6 @@ package com.fyd.miku.model.render;
 
 import android.content.Context;
 import android.opengl.Matrix;
-import android.util.Log;
 
 import com.fyd.miku.model.pmd.Mesh;
 import com.fyd.miku.model.pmd.MikuModel;
@@ -20,6 +19,7 @@ public class MikuRender {
     public MikuRender(Context context) {
         this.context = context;
     }
+
     public void onSurfaceCreate() {
         renderProgram = new MikuRenderProgram(context);
     }

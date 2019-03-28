@@ -10,10 +10,11 @@ public class Material {
     float shininess;        //材质光泽度
     float[] specularColor;  //镜面反射颜色 rgb
     float[] ambientColor;   //环境光颜色 rgb
-    byte toonNum;            //toon纹理序号0-9，255表示没有纹理
+    byte toonIndex;            //toon纹理序号0-9，255表示没有纹理
     byte edgeFlag;           //是否绘制材质边缘
     int vertexIndicesNum;         //顶点索引数量
     String textureName;     //纹理名称，如果有球面贴图(sphere map)的话， 纹理文件和球面贴图文件用*号分开，eg "tex0.bmp*sphere01.spa"
+    String sphereMapName;   //球面贴图文件
 
     int vertexIndexOffset;        //顶点索引在所有顶点中的偏移量
 
@@ -21,5 +22,20 @@ public class Material {
         diffuseColor = new float[4];
         specularColor = new float[3];
         ambientColor = new float[3];
+    }
+
+    public String getTextureName() {
+        return textureName;
+    }
+
+    public String getSphereMapName() {
+        return sphereMapName;
+    }
+
+    public String getToonName() {
+        if(toonIndex < 10) {
+            return toonNames[toonIndex];
+        }
+        return "";
     }
 }

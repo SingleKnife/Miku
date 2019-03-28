@@ -5,6 +5,8 @@ import android.util.Log;
 
 import com.fyd.miku.io.ObjectBufferedInputStream;
 
+import org.w3c.dom.Text;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -101,10 +103,17 @@ public class PMDFile {
             material.shininess = pmdStream.readFloat();
             pmdStream.readFloats(material.specularColor);
             pmdStream.readFloats(material.ambientColor);
-            material.toonNum = pmdStream.readByte();
+            material.toonIndex = pmdStream.readByte();
             material.edgeFlag = pmdStream.readByte();
             material.vertexIndicesNum = pmdStream.readInt();
-            material.textureName = pmdStream.readSJISString(20);
+            String textureNames = pmdStream.readSJISString(20);
+            if(!TextUtils.isEmpty(textureNames)) {
+                String[] tex = textureNames.split("\\*");
+                material.textureName = tex[0];
+                if(tex.length > 1) {
+                   material.sphereMapName = tex[1];
+                }
+            }
 
             material.vertexIndexOffset =vertexIndexOffset;
             vertexIndexOffset += material.vertexIndicesNum;
