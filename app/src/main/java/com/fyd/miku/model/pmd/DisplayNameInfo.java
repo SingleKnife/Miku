@@ -8,7 +8,7 @@ import java.util.List;
  */
 public class DisplayNameInfo {
     //在面部操作中显示的动画
-    List<Short> faceMorphIndices;
+    List<Integer> faceMorphIndices;
 
     List<String> boneGroupNames;
     List<String> boenGroupNamesEnglish;
@@ -23,7 +23,7 @@ public class DisplayNameInfo {
     }
 
     static class BoneGroup {
-        short boneIndex;
-        byte boneGroupIndex;
+        int boneIndex;
+        int boneGroupIndex;
     }
 }

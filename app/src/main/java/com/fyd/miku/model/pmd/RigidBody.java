@@ -9,10 +9,10 @@ public class RigidBody {
     public static final int BODY_TYPE_DYNAMIC_ADJUST_BONE = 0;  //刚体同时受bone和物理引擎
 
     String name;
-    short boneIndex;
-    byte groupIndex;
-    short groupTarget;
-    byte shape;                  //刚体形状 0.sphere 球 1. box箱 2. Capsule
+    int boneIndex;
+    int groupIndex;
+    int groupTarget;
+    int shape;                  //刚体形状 0.sphere 球 1. box箱 2. Capsule
     float shapeWidth;
     float shapeHeight;
     float shapeDepth;           //only for box shape
@@ -23,7 +23,7 @@ public class RigidBody {
     float rigidBodyRotationDimmer;//旋转阻尼系数
     float rigidBodyRecoil;          //反冲系数
     float rigidBodyFriction;        //摩擦系数
-    byte rigidBodyType;            //刚体类型
+    int rigidBodyType;            //刚体类型
 
 
     public RigidBody() {

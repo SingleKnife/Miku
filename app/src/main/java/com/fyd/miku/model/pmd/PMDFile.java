@@ -5,8 +5,6 @@ import android.util.Log;
 
 import com.fyd.miku.io.ObjectBufferedInputStream;
 
-import org.w3c.dom.Text;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -67,7 +65,7 @@ public class PMDFile {
             int byteNum = vertexNum * AllVertex.BYTE_SIZE_PER_VERTEX;
             byte[] buffer = new byte[byteNum];
             if(pmdStream.read(buffer) == -1) {
-                throw new IOException("parseVertices not readByte enough bytes");
+                throw new IOException("parseVertices not read enough bytes");
             }
             allVertex = new AllVertex();
             allVertex.setVertices(buffer);
@@ -82,7 +80,7 @@ public class PMDFile {
             int byteNum = indicesNum * AllVertex.BYTE_SIZE_PER_INDEX;
             byte[] buffer = new byte[byteNum];
             if(pmdStream.read(buffer) == -1) {
-                throw new IOException("parseVertexIndices not readByte enough bytes");
+                throw new IOException("parseVertexIndices not read enough bytes");
             }
             allVertex.setIndices(buffer);
         }
@@ -100,11 +98,11 @@ public class PMDFile {
         for(int i = 0; i < materialsNum; ++i) {
             Material material = new Material();
             pmdStream.readFloats(material.diffuseColor);
-            material.shininess = pmdStream.readFloat();
+            material.specularPower = pmdStream.readFloat();
             pmdStream.readFloats(material.specularColor);
             pmdStream.readFloats(material.ambientColor);
-            material.toonIndex = pmdStream.readByte();
-            material.edgeFlag = pmdStream.readByte();
+            material.toonIndex = pmdStream.read();
+            material.edgeFlag = pmdStream.read();
             material.vertexIndicesNum = pmdStream.readInt();
             String textureNames = pmdStream.readSJISString(20);
             if(!TextUtils.isEmpty(textureNames)) {
@@ -123,7 +121,7 @@ public class PMDFile {
     }
 
     private void parseBones() throws IOException{
-        int boneNum = pmdStream.readShort();
+        int boneNum = pmdStream.readUnsignedShort();
         bones = new ArrayList<>();
         Log.i("mmd", "bone num: " + boneNum);
         if(boneNum <= 0) {
@@ -133,17 +131,17 @@ public class PMDFile {
         for (int i = 0; i < boneNum; ++i) {
             Bone bone = new Bone();
             bone.boneName = pmdStream.readSJISString(20);
-            bone.parentBoneIndex = pmdStream.readShort();
-            bone.childBoneIndex = pmdStream.readShort();
-            bone.boneType = pmdStream.readByte();
-            bone.ikParent = pmdStream.readShort();
+            bone.parentBoneIndex = pmdStream.readUnsignedShort();
+            bone.childBoneIndex = pmdStream.readUnsignedShort();
+            bone.boneType = pmdStream.read();
+            bone.ikParent = pmdStream.readUnsignedShort();
             pmdStream.readFloats(bone.position);
             bones.add(bone);
         }
     }
 
     private void parseIk() throws IOException {
-        short ikNum = pmdStream.readShort();
+        int ikNum = pmdStream.readUnsignedShort();
         ikInfos = new ArrayList<>();
         Log.i("mmd", "ikNum: " + ikNum);
         if(ikNum <= 0) {
@@ -152,21 +150,21 @@ public class PMDFile {
 
         for(int i = 0; i < ikNum; ++i) {
             IKInfo ikInfo = new IKInfo();
-            ikInfo.ikBoneIndex = pmdStream.readShort();
-            ikInfo.targetBoneIndex = pmdStream.readShort();
-            ikInfo.boneNum = pmdStream.readByte();
-            ikInfo.iterationNum = pmdStream.readShort();
+            ikInfo.ikBoneIndex = pmdStream.readUnsignedShort();
+            ikInfo.targetBoneIndex = pmdStream.readUnsignedShort();
+            ikInfo.boneNum = pmdStream.read();
+            ikInfo.iterationNum = pmdStream.readUnsignedShort();
             ikInfo.rotateLimit = pmdStream.readFloat();
 
             for(int j = 0; j < ikInfo.boneNum; ++j) {
-                ikInfo.boneList.add(pmdStream.readShort());
+                ikInfo.boneList.add(pmdStream.readUnsignedShort());
             }
             ikInfos.add(ikInfo);
         }
     }
 
     private void parseFaceMorph() throws IOException {
-        short morphNum = pmdStream.readShort();
+        int morphNum = pmdStream.readUnsignedShort();
         faceMorphs = new ArrayList<>();
         Log.i("mmd", "morphNum: " + morphNum);
 
@@ -178,7 +176,7 @@ public class PMDFile {
             FaceMorph faceMorph = new FaceMorph();
             faceMorph.morphName = pmdStream.readSJISString(20);
             faceMorph.verticesCount = pmdStream.readInt();
-            faceMorph.morphType = pmdStream.readByte();
+            faceMorph.morphType = pmdStream.read();
             for(int j = 0; j < faceMorph.verticesCount; ++j) {
                 FaceMorph.Vertex vertex = new FaceMorph.Vertex();
                 vertex.vertexIndex = pmdStream.readInt();
@@ -192,11 +190,11 @@ public class PMDFile {
 
     private void parseDisplayInfo() throws IOException{
         displayNameInfo = new DisplayNameInfo();
-        byte faceMorphNum = pmdStream.readByte();
+        int faceMorphNum = pmdStream.read();
         for(int i = 0; i < faceMorphNum; ++i) {
-            displayNameInfo.faceMorphIndices.add(pmdStream.readShort());
+            displayNameInfo.faceMorphIndices.add(pmdStream.readUnsignedShort());
         }
-        byte boneGroupNum = pmdStream.readByte();
+        int boneGroupNum = pmdStream.read();
         for(int i = 0; i < boneGroupNum; ++i) {
             displayNameInfo.boneGroupNames.add(pmdStream.readSJISString(50));
         }
@@ -204,14 +202,14 @@ public class PMDFile {
         int boneNum = pmdStream.readInt();
         for(int i = 0; i < boneNum; ++i) {
             DisplayNameInfo.BoneGroup boneGroup = new DisplayNameInfo.BoneGroup();
-            boneGroup.boneIndex = pmdStream.readShort();
-            boneGroup.boneGroupIndex = pmdStream.readByte();
+            boneGroup.boneIndex = pmdStream.readUnsignedShort();
+            boneGroup.boneGroupIndex = pmdStream.read();
             displayNameInfo.boneGroups.add(boneGroup);
         }
     }
 
     private void parseEnglishNameInfo() throws IOException{
-        byte hasEnglishInfo = pmdStream.readByte();
+        int hasEnglishInfo = pmdStream.read();
         if(hasEnglishInfo == 1) {
             header.modelNameEnglish = pmdStream.readSJISString(20);
             header.modelCommentEnglish = pmdStream.readSJISString(256);
@@ -251,10 +249,10 @@ public class PMDFile {
             RigidBody rigidBody = new RigidBody();
             rigidBody.name = pmdStream.readSJISString(20);
             Log.i("mmd", "rigid name: " + rigidBody.name);
-            rigidBody.boneIndex = pmdStream.readShort();
-            rigidBody.groupIndex = pmdStream.readByte();
-            rigidBody.groupTarget = pmdStream.readShort();
-            rigidBody.shape = pmdStream.readByte();
+            rigidBody.boneIndex = pmdStream.readUnsignedShort();
+            rigidBody.groupIndex = pmdStream.read();
+            rigidBody.groupTarget = pmdStream.readUnsignedShort();
+            rigidBody.shape = pmdStream.read();
             rigidBody.shapeWidth = pmdStream.readFloat();
             rigidBody.shapeHeight = pmdStream.readFloat();
             rigidBody.shapeDepth = pmdStream.readFloat();
@@ -265,7 +263,7 @@ public class PMDFile {
             rigidBody.rigidBodyRotationDimmer = pmdStream.readFloat();
             rigidBody.rigidBodyRecoil = pmdStream.readFloat();
             rigidBody.rigidBodyFriction = pmdStream.readFloat();
-            rigidBody.rigidBodyType = pmdStream.readByte();
+            rigidBody.rigidBodyType = pmdStream.read();
             rigidBodies.add(rigidBody);
         }
     }

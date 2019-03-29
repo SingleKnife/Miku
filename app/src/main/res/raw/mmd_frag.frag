@@ -25,7 +25,7 @@ void main() {
     ln = clamp(ln + 0.5, 0.0, 1.0);
 
     float alpha = uDiffuse.a;
-    if(alpha == 0) {
+    if(alpha == 0.0) {
         discard;
     }
 
@@ -34,17 +34,17 @@ void main() {
     color += uAmbient;
 
     if(uHasToon) {
-        vec3 toonColor = texture(uToonTexture, vec2(0.5, ln));
+        vec3 toonColor = texture2D(uToonTexture, vec2(0.0, ln)).rgb;
         color *= toonColor;
     }
 
-    if(uSpecularPower > 0) {
+    if(uSpecularPower > 0.0) {
         vec3 halfVec = normalize(eyeDir + lightDir);
         vec3 specularColor = uSpecular * uLightColor;
-        specularColor = pow(max(0.0, dot(halfVec, normal)), uSpecularPower);
+        specularColor = pow(max(0.0, dot(halfVec, normal)), uSpecularPower) * specularColor;
 
         color += specularColor;
     }
 
-	gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+	gl_FragColor = vec4(color, alpha);
 }

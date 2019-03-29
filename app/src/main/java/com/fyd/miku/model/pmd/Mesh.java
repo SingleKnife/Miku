@@ -28,5 +28,7 @@ public class Mesh {
         return material.vertexIndexOffset;
     }
 
-
+    public Material getMaterial() {
+        return material;
+    }
 }

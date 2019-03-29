@@ -18,15 +18,38 @@ public class ObjectBufferedInputStream extends BufferedInputStream {
         this.byteOrder = byteOrder;
     }
 
-    public short readShort() throws IOException {
+    /**
+     * See the general contract of the <code>readUnsignedByte</code>
+     * method of <code>DataInput</code>.
+     * <p>
+     * Bytes
+     * for this operation are read from the contained
+     * input stream.
+     *
+     * @return     the next byte of this input stream, interpreted as an
+     *             unsigned 8-bit number.
+     * @exception  EOFException  if this input stream has reached the end.
+     * @exception  IOException   the stream has been closed and the contained
+     *             input stream does not support reading after close, or
+     *             another I/O error occurs.
+     * @see         java.io.FilterInputStream#in
+     */
+    public final int readUnsignedByte() throws IOException {
+        int ch = in.read();
+        if (ch < 0)
+            throw new EOFException();
+        return ch;
+    }
+
+    public int readUnsignedShort() throws IOException {
         int ch1 = this.read();
         int ch2 = this.read();
         if ((ch1 | ch2) < 0)
             throw new EOFException();
         if(byteOrder == ByteOrder.LITTLE_ENDIAN) {
-            return (short) ((ch2 << 8 ) + (ch1 << 0));
+            return (ch2 << 8 ) + (ch1 << 0);
         } else {
-            return (short) ((ch1 << 8) + (ch2 << 0));
+            return (ch1 << 8) + (ch2 << 0);
         }
     }
 
@@ -54,10 +77,6 @@ public class ObjectBufferedInputStream extends BufferedInputStream {
         }
     }
 
-    public synchronized byte readByte() throws IOException {
-        return (byte) super.read();
-    }
-
     /**
      *  读取Shift-JIS编码的字符串
      * @param byteNum 读取的字节长度
@@ -67,7 +86,7 @@ public class ObjectBufferedInputStream extends BufferedInputStream {
     public String readSJISString(int byteNum) throws IOException{
         byte[] buffer = new byte[byteNum];
         if(byteNum > read(buffer, 0, byteNum)) {
-            throw new EOFException("readByte SJIS string error.");
+            throw new EOFException("read SJIS string error.");
         }
         int strByteCount = byteNum;
         for(int i = 0; i < byteNum; ++i) {

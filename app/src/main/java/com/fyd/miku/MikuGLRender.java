@@ -23,6 +23,7 @@ public class MikuGLRender implements GLSurfaceView.Renderer {
         if(mikuRender != null) {
             mikuRender.onSurfaceCreate();
         }
+        GLES20.glEnable(GLES20.GL_DEPTH_TEST);
     }
 
     @Override
@@ -35,7 +36,7 @@ public class MikuGLRender implements GLSurfaceView.Renderer {
 
     @Override
     public void onDrawFrame(GL10 gl) {
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
         if(mikuRender != null) {
             mikuRender.draw();
         }
