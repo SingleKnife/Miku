@@ -19,12 +19,10 @@ public class MikuRender {
     private Context context;
     int[] toonTextures = new int[10];
 
-    private float[] projectionMatrix = new float[16];
-    private float[] viewMatrix = new float[16];
-    private float[] modelMatrix = new float[16];
-    private float[] modelViewMatrix = new float[16];
 
-    private float[] lightDir = {20f, 40f, 40f};
+    private float[] modelMatrix = new float[16];
+
+    private float[] lightDir = {2f, 2f, 4f};
     private float[] lightColor = {1.0f, 1.0f, 1.0f};
 
     public MikuRender(Context context) {
@@ -36,24 +34,32 @@ public class MikuRender {
     }
 
     public void onSurfaceChanged(int width, int height) {
-        Matrix.perspectiveM(projectionMatrix, 0, 45, (float)width/(float)height, 1, 1000);
-        Matrix.setLookAtM(viewMatrix, 0, 0, 20, 40,
-                0, 8, 0, 0, 1, 0);
+
         Matrix.setIdentityM(modelMatrix, 0);
-        Matrix.rotateM(modelMatrix, 0, 180f, 0f, 1, 0);
+        Matrix.scaleM(modelMatrix, 0, 1, 1, -1f);
+//        Matrix.rotateM(modelMatrix, 0, 180f, 0f, 1, 0);
         generateToonTextures();
+    }
+
+    public void beginDraw() {
+        renderProgram.useProgram();
     }
 
     public void draw() {
         if(mikuModel == null) {
             return;
         }
-        renderProgram.useProgram();
 
-        Matrix.multiplyMM(modelViewMatrix, 0, viewMatrix, 0, modelMatrix, 0);
-        renderProgram.updateMatrix(projectionMatrix, modelViewMatrix);
         renderProgram.setLight(lightDir, lightColor);
         drawModel(mikuModel);
+    }
+
+    public void endDraw() {
+
+    }
+
+    public void updateMatrix(float[] projectionMatrix, float[] viewMatrix) {
+        renderProgram.updateMatrix(projectionMatrix, viewMatrix, modelMatrix);
     }
 
     private void drawModel(MikuModel model) {

@@ -1,4 +1,5 @@
 //光照计算在view space中计算
+precision mediump float;
 
 uniform bool uHasToon;
 uniform sampler2D uToonTexture;
@@ -6,7 +7,6 @@ uniform sampler2D uToonTexture;
 uniform bool uHasTexture;
 uniform sampler2D uTextrue;
 
-uniform vec3 uLightDir;
 uniform vec3 uLightColor;
 
 uniform vec4 uDiffuse;
@@ -17,12 +17,12 @@ uniform vec3 uAmbient;
 varying vec2 UV;
 varying vec3 normal;
 varying vec3 fragPos;       //view space中片段位置
+varying vec3 lightDir;
 
 void main() {
     vec3 eyeDir = normalize(fragPos);
-    vec3 lightDir = normalize(-uLightDir);
     float ln = dot(lightDir, normal);
-    ln = clamp(ln + 0.5, 0.0, 1.0);
+    ln = 0.5 - ln * 0.5;
 
     float alpha = uDiffuse.a;
     if(alpha == 0.0) {
@@ -34,7 +34,7 @@ void main() {
     color += uAmbient;
 
     if(uHasToon) {
-        vec3 toonColor = texture2D(uToonTexture, vec2(0.0, ln)).rgb;
+        vec3 toonColor = texture2D(uToonTexture, vec2(0.5, ln)).rgb;
         color *= toonColor;
     }
 

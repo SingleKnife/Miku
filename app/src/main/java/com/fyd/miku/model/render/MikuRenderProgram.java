@@ -2,6 +2,7 @@ package com.fyd.miku.model.render;
 
 import android.content.Context;
 import android.opengl.GLES20;
+import android.opengl.Matrix;
 
 import com.fyd.miku.R;
 import com.fyd.miku.helper.ResourceHelper;
@@ -16,7 +17,8 @@ public class MikuRenderProgram {
     private int aUVLocation;
 
     private int uProjectionMatrixLocation;
-    private int uModelViewMatrixLocation;          //model view matrix
+    private int uViewMatrixLocation;
+    private int uModelMatrixLocation;          //model view matrix
 
     private int uLightColorLocation;
     private int uLightDirLocation;
@@ -42,7 +44,8 @@ public class MikuRenderProgram {
         aNormalLocation = GLES20.glGetAttribLocation(program, "aNormal");
         aUVLocation = GLES20.glGetAttribLocation(program, "aUV");
         uProjectionMatrixLocation = GLES20.glGetUniformLocation(program, "uProjectionMatrix");
-        uModelViewMatrixLocation = GLES20.glGetUniformLocation(program, "uModelViewMatrix");
+        uViewMatrixLocation = GLES20.glGetUniformLocation(program, "uViewMatrix");
+        uModelMatrixLocation = GLES20.glGetUniformLocation(program, "uModelMatrix");
 
         uLightColorLocation = GLES20.glGetUniformLocation(program, "uLightColor");
         uLightDirLocation = GLES20.glGetUniformLocation(program, "uLightDir");
@@ -101,9 +104,10 @@ public class MikuRenderProgram {
     }
 
 
-    public void updateMatrix(float[] projectionMatrix, float[] modelViewMatrix) {
+    public void updateMatrix(float[] projectionMatrix, float[] viewMatrix, float[] modelMatrix) {
         GLES20.glUniformMatrix4fv(uProjectionMatrixLocation, 1, false, projectionMatrix, 0);
-        GLES20.glUniformMatrix4fv(uModelViewMatrixLocation, 1, false, modelViewMatrix, 0);
+        GLES20.glUniformMatrix4fv(uViewMatrixLocation, 1, false, viewMatrix, 0);
+        GLES20.glUniformMatrix4fv(uModelMatrixLocation, 1, false, modelMatrix, 0);
     }
 
     public void draw(ByteBuffer indicesBuffer, int indexCount) {
