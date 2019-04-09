@@ -10,6 +10,7 @@ import android.widget.Button;
 import com.fyd.miku.R;
 import com.fyd.miku.model.pmd.MikuModel;
 import com.fyd.miku.model.pmd.PMDFile;
+import com.fyd.miku.model.vmd.VMDFile;
 import com.fyd.miku.model.render.MikuRender;
 
 import java.io.IOException;
@@ -46,6 +47,11 @@ public class MainActivity extends AppCompatActivity {
             MikuModel mikuModel = new MikuModel(pmdParser);
             mikuRender.setMikuModel(mikuModel);
             inputStream.close();
+
+            VMDFile vmdFile = new VMDFile();
+            inputStream = assetManager.open("wavefile_full_miku_v2.vmd");
+            vmdFile.parse(inputStream);
+
         } catch (IOException e) {
             e.printStackTrace();
         }

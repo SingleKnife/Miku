@@ -48,7 +48,7 @@ public class PMDFile {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return true;
+        return baseInfoReadFinish;
     }
 
     private void parseHeader() throws IOException {
