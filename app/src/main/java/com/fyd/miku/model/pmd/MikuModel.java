@@ -48,7 +48,7 @@ public class MikuModel {
             for(int i = material.vertexIndexOffset; i < material.vertexIndicesNum; i++) {
                 int vertexIndex = indicesBuffer.getShort();
                 int boneInfoPos = vertexIndex  * AllVertex.BYTE_SIZE_PER_VERTEX
-                        + AllVertex.FIRST_BONE_INDEX_OFFSET;
+                        + AllVertex.BONE_INDEX_OFFSET;
                 verticesBuffer.position(boneInfoPos);
 
                 //映射mesh中的骨骼和所有骨骼中的关系，并更新顶点中骨骼数据，这样做是为了以mesh为绘制单元，

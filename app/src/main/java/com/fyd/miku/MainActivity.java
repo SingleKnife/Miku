@@ -49,7 +49,8 @@ public class MainActivity extends AppCompatActivity {
             inputStream.close();
 
             VMDFile vmdFile = new VMDFile();
-            inputStream = assetManager.open("wavefile_full_miku_v2.vmd");
+//            inputStream = assetManager.open("wavefile_full_miku_v2.vmd");
+            inputStream = assetManager.open("motion.vmd");
             vmdFile.parse(inputStream);
 
         } catch (IOException e) {

@@ -2,7 +2,6 @@ package com.fyd.miku.model.render;
 
 import android.content.Context;
 import android.opengl.GLES20;
-import android.opengl.Matrix;
 
 import com.fyd.miku.R;
 import com.fyd.miku.helper.ResourceHelper;
@@ -15,10 +14,13 @@ public class MikuRenderProgram {
     private int aPositionLocation;
     private int aNormalLocation;
     private int aUVLocation;
+    private int aBoneIndicesLocation;
+    private int aBoneWeightAndEdgeFlagLocation;
 
     private int uProjectionMatrixLocation;
     private int uViewMatrixLocation;
     private int uModelMatrixLocation;          //model view matrix
+    private int uBoneMatrixsLocation;
 
     private int uLightColorLocation;
     private int uLightDirLocation;
@@ -43,9 +45,13 @@ public class MikuRenderProgram {
         aPositionLocation = GLES20.glGetAttribLocation(program, "aPosition");
         aNormalLocation = GLES20.glGetAttribLocation(program, "aNormal");
         aUVLocation = GLES20.glGetAttribLocation(program, "aUV");
+        aBoneIndicesLocation = GLES20.glGetAttribLocation(program, "aBoneIndices");
+        aBoneWeightAndEdgeFlagLocation = GLES20.glGetAttribLocation(program, "aBoneWeightAndEdgeFlag");
+
         uProjectionMatrixLocation = GLES20.glGetUniformLocation(program, "uProjectionMatrix");
         uViewMatrixLocation = GLES20.glGetUniformLocation(program, "uViewMatrix");
         uModelMatrixLocation = GLES20.glGetUniformLocation(program, "uModelMatrix");
+        uBoneMatrixsLocation = GLES20.glGetUniformLocation(program, "uBoneMatrixs");
 
         uLightColorLocation = GLES20.glGetUniformLocation(program, "uLightColor");
         uLightDirLocation = GLES20.glGetUniformLocation(program, "uLightDir");
@@ -73,9 +79,15 @@ public class MikuRenderProgram {
                 GLES20.GL_FLOAT, false, AllVertex.BYTE_SIZE_PER_VERTEX, allVertex.getUVBuffer());
         GLES20.glVertexAttribPointer(aNormalLocation, AllVertex.NORMAL_COMPONENT_SIZE,
                 GLES20.GL_FLOAT, false, AllVertex.BYTE_SIZE_PER_VERTEX, allVertex.getNormalBuffer());
+        GLES20.glVertexAttribPointer(aBoneIndicesLocation, AllVertex.BONE_INDEX_COMPONENT_SIZE,
+                GLES20.GL_UNSIGNED_SHORT, false, AllVertex.BYTE_SIZE_PER_VERTEX, allVertex.getBoneIndexBuffer());
+        GLES20.glVertexAttribPointer(aBoneWeightAndEdgeFlagLocation, AllVertex.BONE_WEIGHT_AND_EDGE_FLAG_COMPONENT_SIZE,
+                GLES20.GL_UNSIGNED_BYTE, false, AllVertex.BYTE_SIZE_PER_VERTEX, allVertex.getBoneWeightAndEdgeFlagBuffer());
         GLES20.glEnableVertexAttribArray(aPositionLocation);
         GLES20.glEnableVertexAttribArray(aUVLocation);
         GLES20.glEnableVertexAttribArray(aNormalLocation);
+        GLES20.glEnableVertexAttribArray(aBoneIndicesLocation);
+        GLES20.glEnableVertexAttribArray(aBoneWeightAndEdgeFlagLocation);
     }
 
     void setLight(float[] lightDir, float[] lightColor) {

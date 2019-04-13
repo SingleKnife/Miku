@@ -53,8 +53,8 @@ public class VMDFile {
         for (int i = 0; i < num; i++) {
             VMDMotion motion = new VMDMotion();
             motion.boneName = vmdStream.readSJISString(15);
-            Log.i("vmd", "boneName: " + motion.boneName);
             motion.frameIndex = vmdStream.readInt();
+            Log.i("vmd", "boneName: " + motion.boneName + ", index: " + motion.frameIndex);
             vmdStream.readFloats(motion.boneTranslate);
             vmdStream.readFloats(motion.boneQuaternion);
             vmdStream.read(motion.interpolation, 0, motion.interpolation.length);
@@ -71,8 +71,8 @@ public class VMDFile {
         for (int i = 0; i < num; i++) {
             VMDMorph morph = new VMDMorph();
             morph.morphName = vmdStream.readSJISString(15);
-            Log.i("vmd", "morphName: " + morph.morphName);
             morph.frameIndex = vmdStream.readInt();
+            Log.i("vmd", "morphName: " + morph.morphName + ", index: " + morph.frameIndex);
             morph.weight = vmdStream.readFloat();
             morphs.add(morph);
         }
