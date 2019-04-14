@@ -1,4 +1,6 @@
-package com.fyd.miku.model.pmd;
+package com.fyd.miku.model.mmd;
+
+import com.fyd.miku.model.pmd.Material;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,11 +23,11 @@ public class Mesh {
     }
 
     public int getIndexCount() {
-        return material.vertexIndicesNum;
+        return material.getVertexIndicesNum();
     }
 
     public int getIndexOffset() {
-        return material.vertexIndexOffset;
+        return material.getVertexIndexOffset();
     }
 
     public Material getMaterial() {

@@ -8,8 +8,8 @@ import android.opengl.GLUtils;
 import android.opengl.Matrix;
 
 import com.fyd.miku.model.pmd.Material;
-import com.fyd.miku.model.pmd.Mesh;
-import com.fyd.miku.model.pmd.MikuModel;
+import com.fyd.miku.model.mmd.Mesh;
+import com.fyd.miku.model.mmd.MikuModel;
 
 import java.nio.ByteBuffer;
 
@@ -66,6 +66,7 @@ public class MikuRender {
 
     private void drawModel(MikuModel model) {
         renderProgram.bindVertexData(model.getAllVertex());
+        renderProgram.bindBoneMatrices(model.getBoneManager().getAllMatrices());
         for(Mesh mesh : model.getMeshes()) {
             drawMesh(model, mesh);
         }

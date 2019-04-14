@@ -64,6 +64,14 @@ public class Material {
         return toonIndex;
     }
 
+    public int getVertexIndicesNum() {
+        return vertexIndicesNum;
+    }
+
+    public int getVertexIndexOffset() {
+        return vertexIndexOffset;
+    }
+
     public boolean hasToonTexture() {
         return toonIndex != 255;
     }

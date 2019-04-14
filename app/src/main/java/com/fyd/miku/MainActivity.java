@@ -7,8 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
-import com.fyd.miku.R;
-import com.fyd.miku.model.pmd.MikuModel;
+import com.fyd.miku.model.mmd.MikuModel;
 import com.fyd.miku.model.pmd.PMDFile;
 import com.fyd.miku.model.vmd.VMDFile;
 import com.fyd.miku.model.render.MikuRender;
@@ -50,9 +49,9 @@ public class MainActivity extends AppCompatActivity {
 
             VMDFile vmdFile = new VMDFile();
 //            inputStream = assetManager.open("wavefile_full_miku_v2.vmd");
-            inputStream = assetManager.open("motion.vmd");
+            inputStream = assetManager.open("hand.vmd");
             vmdFile.parse(inputStream);
-
+            mikuModel.attachMotion(vmdFile);
         } catch (IOException e) {
             e.printStackTrace();
         }

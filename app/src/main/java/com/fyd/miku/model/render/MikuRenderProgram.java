@@ -20,7 +20,7 @@ public class MikuRenderProgram {
     private int uProjectionMatrixLocation;
     private int uViewMatrixLocation;
     private int uModelMatrixLocation;          //model view matrix
-    private int uBoneMatrixsLocation;
+    private int uBoneMatricesLocation;
 
     private int uLightColorLocation;
     private int uLightDirLocation;
@@ -51,7 +51,7 @@ public class MikuRenderProgram {
         uProjectionMatrixLocation = GLES20.glGetUniformLocation(program, "uProjectionMatrix");
         uViewMatrixLocation = GLES20.glGetUniformLocation(program, "uViewMatrix");
         uModelMatrixLocation = GLES20.glGetUniformLocation(program, "uModelMatrix");
-        uBoneMatrixsLocation = GLES20.glGetUniformLocation(program, "uBoneMatrixs");
+        uBoneMatricesLocation = GLES20.glGetUniformLocation(program, "uBoneMatrices");
 
         uLightColorLocation = GLES20.glGetUniformLocation(program, "uLightColor");
         uLightDirLocation = GLES20.glGetUniformLocation(program, "uLightDir");
@@ -88,6 +88,10 @@ public class MikuRenderProgram {
         GLES20.glEnableVertexAttribArray(aNormalLocation);
         GLES20.glEnableVertexAttribArray(aBoneIndicesLocation);
         GLES20.glEnableVertexAttribArray(aBoneWeightAndEdgeFlagLocation);
+    }
+
+    public void bindBoneMatrices(float[] boneMatrices) {
+        GLES20.glUniformMatrix4fv(uBoneMatricesLocation, boneMatrices.length / 16, false, boneMatrices, 0);
     }
 
     void setLight(float[] lightDir, float[] lightColor) {

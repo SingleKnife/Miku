@@ -1,5 +1,7 @@
 package com.fyd.miku.model.pmd;
 
+import java.util.Arrays;
+
 public class Bone {
     String boneName;
     String boneNameEnglish;
@@ -11,5 +13,22 @@ public class Bone {
 
     public Bone() {
         position = new float[3];
+    }
+
+    public String getBoneName() {
+        return boneName;
+    }
+
+    @Override
+    public String toString() {
+        return "Bone{" +
+                "boneName='" + boneName + '\'' +
+                ", boneNameEnglish='" + boneNameEnglish + '\'' +
+                ", parentBoneIndex=" + parentBoneIndex +
+                ", childBoneIndex=" + childBoneIndex +
+                ", boneType=" + boneType +
+                ", ikParent=" + ikParent +
+                ", position=" + Arrays.toString(position) +
+                '}';
     }
 }

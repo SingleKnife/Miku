@@ -11,21 +11,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PMDFile {
-    ObjectBufferedInputStream pmdStream;
-    PMDHeader header;
-    AllVertex allVertex;
-    List<Material> materials;
-    List<Bone> bones;
-    List<IKInfo> ikInfos;
-    List<FaceMorph> faceMorphs;
-    DisplayNameInfo displayNameInfo;
-    List<RigidBody> rigidBodies;
-    List<Joint> joints;
+    private ObjectBufferedInputStream pmdStream;
+    private PMDHeader header;
+
+    public AllVertex allVertex;
+    public List<Material> materials;
+    public List<Bone> bones;
+    public List<IKInfo> ikInfos;
+    public List<FaceMorph> faceMorphs;
+    public DisplayNameInfo displayNameInfo;
+    public List<RigidBody> rigidBodies;
+    public List<Joint> joints;
 
     private boolean baseInfoReadFinish;
 
     public PMDFile() {
     }
+
+
 
     public boolean parse(InputStream inputStream) throws IOException{
         try{
@@ -136,6 +139,7 @@ public class PMDFile {
             bone.boneType = pmdStream.read();
             bone.ikParent = pmdStream.readUnsignedShort();
             pmdStream.readFloats(bone.position);
+            Log.i("mmd", "bone: " + i + ", " + bone);
             bones.add(bone);
         }
     }

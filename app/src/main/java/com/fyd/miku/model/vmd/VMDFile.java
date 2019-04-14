@@ -33,6 +33,14 @@ public class VMDFile {
         }
     }
 
+    public List<VMDMorph> getMorphs() {
+        return morphs;
+    }
+
+    public List<VMDMotion> getMotions() {
+        return motions;
+    }
+
     private void parseHeader() throws IOException {
         header = new VMDHeader();
         header.magic = vmdStream.readSJISString(30);
@@ -53,11 +61,11 @@ public class VMDFile {
         for (int i = 0; i < num; i++) {
             VMDMotion motion = new VMDMotion();
             motion.boneName = vmdStream.readSJISString(15);
-            motion.frameIndex = vmdStream.readInt();
-            Log.i("vmd", "boneName: " + motion.boneName + ", index: " + motion.frameIndex);
+            motion.frame = vmdStream.readInt();
             vmdStream.readFloats(motion.boneTranslate);
             vmdStream.readFloats(motion.boneQuaternion);
             vmdStream.read(motion.interpolation, 0, motion.interpolation.length);
+            Log.i("vmd", "vmdMotion: " + motion);
             motions.add(motion);
         }
     }
