@@ -40,13 +40,17 @@ public class MikuBoneManager {
         bone.rotation = rotation;
         bone.translate = translate;
 
-        MatrixHelper.setQuaternionM(bone.localTransform, 0, rotation);
-        Matrix.translateM(bone.localTransform, 0, bone.position[0], bone.position[1], bone.position[2]);
-        Matrix.translateM(bone.localTransform, 0, translate[0], translate[1], translate[2]);
+        float[] localTranslate = new float[3];
+        localTranslate[0] = bone.position[0] + translate[0];
+        localTranslate[1] = bone.position[1] + translate[1];
+        localTranslate[2] = bone.position[2] + translate[2];
         if(bone.parentIndex != INVALID_BONE_INDEX) {
             MikuBone parent = mikuBones.get(bone.parentIndex);
-            Matrix.translateM(bone.localTransform, 0, -parent.position[0], -parent.position[1], -parent.position[2]);
+            localTranslate[0] -= parent.position[0];
+            localTranslate[1] -= parent.position[1];
+            localTranslate[2] -= parent.position[2];
         }
+        MatrixHelper.fromRotationTranslationScale(bone.localTransform, 0, rotation, localTranslate, bone.scale);
     }
 
 
@@ -55,8 +59,11 @@ public class MikuBoneManager {
             updateBoneMotion(mikuBone);
         }
 
-        for(MikuBone mikuBone : mikuBones) {
-            mikuBone.isUpdated = false;
+        for (int i = 0; i < mikuBones.size(); i++) {
+            MikuBone bone = mikuBones.get(i);
+            bone.isUpdated = false;
+            Matrix.translateM(allMatrices, i * 16,
+                    -bone.position[0], -bone.position[1], -bone.position[2]);
         }
     }
 
