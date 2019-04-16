@@ -45,12 +45,12 @@ public class BoneFrames {
     public static class BoneFrame {
         int frame;
         float[] boneTranslate;      //骨骼位移
-        float[] boneQuaternion;     //骨骼旋转四元组
+        float[] boneRotation;     //骨骼旋转四元组
         byte[] interpolation;       //动画插值数据
 
         public BoneFrame() {
             boneTranslate = new float[3];
-            boneQuaternion = new float[4];
+            boneRotation = new float[4];
             interpolation = new byte[64];
         }
     }

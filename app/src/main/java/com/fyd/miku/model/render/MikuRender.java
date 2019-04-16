@@ -38,7 +38,7 @@ public class MikuRender {
     public void onSurfaceChanged(int width, int height) {
 
         Matrix.setIdentityM(modelMatrix, 0);
-        Matrix.scaleM(modelMatrix, 0, 1, 1, -1f);
+//        Matrix.scaleM(modelMatrix, 0, 1, 1, -1f);
 //        Matrix.rotateM(modelMatrix, 0, 180f, 0f, 1, 0);
         generateToonTextures();
     }

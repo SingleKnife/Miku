@@ -43,7 +43,7 @@ public class MikuModel {
                 continue;
             }
             boneFrame.frame = vmdMotion.getFrame();
-            boneFrame.boneQuaternion = vmdMotion.getBoneQuaternion();
+            boneFrame.boneRotation = vmdMotion.getBoneQuaternion();
             boneFrame.boneTranslate = vmdMotion.getBoneTranslate();
             boneFrame.interpolation = vmdMotion.getInterpolation();
             mikuAnimation.addBoneFrame(boneIndex, boneFrame);

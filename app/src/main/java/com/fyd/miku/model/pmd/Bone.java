@@ -19,6 +19,14 @@ public class Bone {
         return boneName;
     }
 
+    public float[] getPosition() {
+        return position;
+    }
+
+    public int getParentBoneIndex() {
+        return parentBoneIndex;
+    }
+
     @Override
     public String toString() {
         return "Bone{" +

@@ -1,10 +1,6 @@
 package com.fyd.miku.model.mmd;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class MikuAnimation {
@@ -43,10 +39,9 @@ public class MikuAnimation {
             int boneIndex = entry.getKey();
             BoneFrames boneFrames = entry.getValue();
             BoneFrames.BoneFrame boneFrame = boneFrames.getBoneFrame(currentFrame);
-            boneFrame.boneQuaternion[2] *= -1;
-            boneFrame.boneTranslate[2] *= -1;
-            boneManager.updateBoneMatrix(boneIndex, boneFrame.boneQuaternion, boneFrame.boneTranslate);
+            boneManager.setBoneMotion(boneIndex, boneFrame.boneRotation, boneFrame.boneTranslate);
         }
+        boneManager.updateAllBonesMotion();
     }
 
     public int getCurrentFrame() {

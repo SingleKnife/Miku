@@ -5,11 +5,19 @@ import android.opengl.Matrix;
 public class MikuBone {
     String name;
     int matrixIndex;        //
+    int parentIndex;
 
-    float[] boneTranslate;      //骨骼位移
-    float[] boneQuaternion;     //骨骼旋转四元组
+    float[] position;
+    float[] translate;      //骨骼位移
+    float[] rotation;     //骨骼旋转四元组
     byte[] interpolation;       //动画插值数据
 
+    float[] localTransform; //骨骼以本身为参考系的变换
+
+    boolean isUpdated = false;
+
     MikuBone() {
+        localTransform = new float[16];
+        Matrix.setIdentityM(localTransform, 0);
     }
 }
