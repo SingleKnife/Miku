@@ -1,14 +1,18 @@
 package com.fyd.miku.model.mmd;
 
 import android.opengl.Matrix;
+import android.util.Log;
 
 import com.fyd.miku.helper.MatrixHelper;
 import com.fyd.miku.model.pmd.Bone;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class MikuBoneManager {
+    private static final String TAG = "MikuBoneManager";
+
     private static int INVALID_BONE_INDEX = 0xFFFF;
 
     private List<MikuBone> mikuBones;
@@ -28,6 +32,11 @@ public class MikuBoneManager {
             mikuBones.add(mikuBone);
         }
     }
+
+    public int getBonesSize() {
+        return mikuBones.size();
+    }
+
 
     /**
      * 更新骨骼动作矩阵
@@ -102,5 +111,11 @@ public class MikuBoneManager {
 
     public float[] getAllMatrices() {
         return allMatrices;
+    }
+
+    public void printBoneMatrix(int boneIndex) {
+        float[] matrix = new float[16];
+        System.arraycopy(allMatrices, boneIndex * 16, matrix, 0, 16);
+        Log.i(TAG, "bone " + boneIndex + ": " + Arrays.toString(matrix));
     }
 }

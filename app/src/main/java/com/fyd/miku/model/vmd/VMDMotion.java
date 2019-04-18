@@ -43,6 +43,7 @@ public class VMDMotion {
                 ", frame=" + frame +
                 ", boneTranslate=" + Arrays.toString(boneTranslate) +
                 ", boneQuaternion=" + Arrays.toString(boneQuaternion) +
+                ", boneQuaternion=" + Arrays.toString(interpolation) +
                 '}';
     }
 }

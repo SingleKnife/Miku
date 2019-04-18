@@ -21,7 +21,7 @@ void main() {
 
     mat4 firstBoneMatrix = uBoneMatrices[int(aBoneIndices.x)];
     mat4 secondBoneMatrix = uBoneMatrices[int(aBoneIndices.y)];
-    float firstBoneWeight = aBoneWeightAndEdgeFlag.x / 100.0;
+    float firstBoneWeight = aBoneWeightAndEdgeFlag.x * 0.01;
     mat4 boneMatrix = firstBoneMatrix * firstBoneWeight + secondBoneMatrix * (1.0 - firstBoneWeight);
     position = boneMatrix * position;
     position.w = 1.0;

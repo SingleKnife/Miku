@@ -19,7 +19,7 @@ public class MikuRender {
     private MikuModel mikuModel;
     private MikuRenderProgram renderProgram;
     private Context context;
-    int[] toonTextures = new int[10];
+    private int[] toonTextures = new int[10];
 
 
     private float[] modelMatrix = new float[16];
@@ -39,7 +39,6 @@ public class MikuRender {
 
         Matrix.setIdentityM(modelMatrix, 0);
         Matrix.scaleM(modelMatrix, 0, 1, 1, -1f);
-//        Matrix.rotateM(modelMatrix, 0, 180f, 0f, 1, 0);
         generateToonTextures();
     }
 
@@ -67,6 +66,7 @@ public class MikuRender {
     private void drawModel(MikuModel model) {
         renderProgram.bindVertexData(model.getAllVertex());
         renderProgram.bindBoneMatrices(model.getBoneManager().getAllMatrices());
+        model.updateMotion();
         for(Mesh mesh : model.getMeshes()) {
             drawMesh(model, mesh);
         }
