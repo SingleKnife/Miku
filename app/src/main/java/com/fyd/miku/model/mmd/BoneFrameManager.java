@@ -1,11 +1,17 @@
 package com.fyd.miku.model.mmd;
 
+import android.util.Log;
+
+import com.fyd.miku.helper.InterpolatorHelper;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 public class BoneFrameManager {
+    private static final String TAG = "BoneFrameManager";
+
     //动画对应的关键帧
     private List<BoneFrame> keyFrames;
     private int currentKeyFrameIndex = 0;
@@ -33,6 +39,9 @@ public class BoneFrameManager {
      * @param frame 帧数
      */
     BoneFrame getBoneFrame(int frame) {
+        currentKeyFrameIndex = Math.min(currentKeyFrameIndex, keyFrames.size() - 1);
+        nextKeyFrameIndex = Math.min(nextKeyFrameIndex, keyFrames.size() - 1);
+
         if(nextKeyFrameIndex < keyFrames.size()) {
             int nextKeyFrame = keyFrames.get(nextKeyFrameIndex).frame;
             if(frame > nextKeyFrame) {
@@ -40,8 +49,39 @@ public class BoneFrameManager {
                 nextKeyFrameIndex = Math.min(nextKeyFrameIndex + 1, keyFrames.size() - 1);
             }
         }
+        return interpolateFrame(frame);
+    }
 
-        return keyFrames.get(currentKeyFrameIndex);
+    private BoneFrame interpolateFrame(int frame) {
+
+        BoneFrame currentKeyFrame = keyFrames.get(currentKeyFrameIndex);
+        BoneFrame nextKeyFrame = keyFrames.get(nextKeyFrameIndex);
+        BezierParameters bezier = currentKeyFrame.interpolation;
+
+        BoneFrame boneFrame = new BoneFrame();
+        float t = (float)(frame - currentKeyFrame.frame * 2) / (float)(nextKeyFrame.frame * 2 - currentKeyFrame.frame * 2);
+        float s;
+        //calculate x interpolated value
+        s = InterpolatorHelper.bezier(t, bezier.x1[0], bezier.x1[1], bezier.x2[0], bezier.x2[1]);
+        boneFrame.boneTranslate[0] = currentKeyFrame.boneTranslate[0]
+                + (nextKeyFrame.boneTranslate[0] - currentKeyFrame.boneTranslate[0]) * s;
+        Log.i(TAG, "interpolateFrame, frame: " + frame + ", t: " + t + ", s: " + s);
+
+        //calculate y interpolated value
+        s = InterpolatorHelper.bezier(t, bezier.y1[0], bezier.y1[1], bezier.y2[0], bezier.y2[1]);
+        boneFrame.boneTranslate[1] = currentKeyFrame.boneTranslate[1]
+                + (nextKeyFrame.boneTranslate[1] - currentKeyFrame.boneTranslate[1]) * s;
+
+        //calculate z interpolated value
+        s = InterpolatorHelper.bezier(t, bezier.z1[0], bezier.z1[1], bezier.z2[0], bezier.z2[1]);
+        boneFrame.boneTranslate[2] = currentKeyFrame.boneTranslate[2]
+                + (nextKeyFrame.boneTranslate[2] - currentKeyFrame.boneTranslate[2]) * s;
+
+        //calculate rotation interpolated value
+        s = InterpolatorHelper.bezier(t, bezier.r1[0], bezier.r1[1], bezier.r2[0], bezier.r2[1]);
+        InterpolatorHelper.slerp(boneFrame.boneRotation, currentKeyFrame.boneRotation, nextKeyFrame.boneRotation, s);
+
+        return boneFrame;
     }
 
 
@@ -52,60 +92,65 @@ public class BoneFrameManager {
         BezierParameters interpolation;//动画插值数据
 
         BoneFrame() {
+            boneTranslate = new float[3];
+            boneRotation = new float[4];
         }
     }
 
     static class BezierParameters {
         //x轴插值
-        int[] x1;  //x1.x, x1.y
-        int[] x2;
+        float[] x1;  //x1.x, x1.y
+        float[] x2;
 
         //y轴插值
-        int[] y1;
-        int[] y2;
+        float[] y1;
+        float[] y2;
 
         //z轴插值
-        int[] z1;
-        int[] z2;
+        float[] z1;
+        float[] z2;
 
         //旋转插值
-        int[] r1;
-        int[] r2;
+        float[] r1;
+        float[] r2;
 
-        public BezierParameters() {
-            x1 = new int[2];
-            x2 = new int[2];
+         BezierParameters() {
+            x1 = new float[2];
+            x2 = new float[2];
 
-            y1 = new int[2];
-            y2 = new int[2];
+            y1 = new float[2];
+            y2 = new float[2];
 
-            z1 = new int[2];
-            z2 = new int[2];
+            z1 = new float[2];
+            z2 = new float[2];
 
-            r1 = new int[2];
-            r2 = new int[2];
+            r1 = new float[2];
+            r2 = new float[2];
         }
 
-        public void parse(byte[] interpolation) {
-            x1[0] = interpolation[0];
-            y1[0] = interpolation[1];
-            z1[0] = interpolation[2];
-            r1[0] = interpolation[3];
+        static BezierParameters parse(byte[] interpolation) {
+            BezierParameters parameters = new BezierParameters();
+            parameters.x1[0] = interpolation[0] / 127.0f;
+            parameters.y1[0] = interpolation[1] / 127.0f;
+            parameters.z1[0] = interpolation[2] / 127.0f;
+            parameters.r1[0] = interpolation[3] / 127.0f;
 
-            x1[1] = interpolation[4];
-            y1[1] = interpolation[5];
-            z1[1] = interpolation[6];
-            r1[1] = interpolation[7];
+            parameters.x1[1] = interpolation[4] / 127.0f;
+            parameters.y1[1] = interpolation[5] / 127.0f;
+            parameters.z1[1] = interpolation[6] / 127.0f;
+            parameters.r1[1] = interpolation[7] / 127.0f;
 
-            x2[0] = interpolation[8];
-            y2[0] = interpolation[9];
-            z2[0] = interpolation[10];
-            r2[0] = interpolation[11];
+            parameters.x2[0] = interpolation[8] / 127.0f;
+            parameters.y2[0] = interpolation[9] / 127.0f;
+            parameters.z2[0] = interpolation[10] / 127.0f;
+            parameters.r2[0] = interpolation[11] / 127.0f;
 
-            x2[1] = interpolation[12];
-            y2[1] = interpolation[13];
-            z2[1] = interpolation[14];
-            r2[1] = interpolation[15];
+            parameters.x2[1] = interpolation[12] / 127.0f;
+            parameters.y2[1] = interpolation[13] / 127.0f;
+            parameters.z2[1] = interpolation[14] / 127.0f;
+            parameters.r2[1] = interpolation[15] / 127.0f;
+
+            return parameters;
         }
     }
 }

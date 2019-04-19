@@ -45,7 +45,7 @@ public class MikuModel {
             boneFrame.frame = vmdMotion.getFrame();
             boneFrame.boneRotation = vmdMotion.getBoneQuaternion();
             boneFrame.boneTranslate = vmdMotion.getBoneTranslate();
-            boneFrame.interpolation = vmdMotion.getInterpolation();
+            boneFrame.interpolation = BoneFrameManager.BezierParameters.parse(vmdMotion.getInterpolation());
             mikuAnimation.addBoneFrame(boneIndex, boneFrame);
         }
         mikuAnimation.sortFrame();

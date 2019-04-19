@@ -6,8 +6,9 @@ import java.util.Map;
 public class MikuAnimation {
     public static final int STATUS_PAUSE = 0;
     public static final int STATUS_PLAYING = 1;
+    public static final int MMD_FPS = 30;       //mmd动画插值fps
 
-    Map<Integer, BoneFrameManager> allBonesFrames;
+    Map<Integer, BoneFrameManager> allBonesFrames;  //<boneIndex, FramesOfBone>
     MikuBoneManager boneManager;
 
     int fps = 30;
