@@ -10,6 +10,7 @@ public class Bone {
     int boneType;       //4表示ik bone，一般是腿和脚，9表示旋转骨骼，
     int ikParent;       //如果是ik bone的话，是驱动这个bone的bone序号
     float[] position;     //当前bone位置
+    boolean isKnee;     //是否是膝盖
 
     public Bone() {
         position = new float[3];
@@ -27,6 +28,10 @@ public class Bone {
         return parentBoneIndex;
     }
 
+    public boolean isKnee() {
+        return isKnee;
+    }
+
     @Override
     public String toString() {
         return "Bone{" +
@@ -36,6 +41,7 @@ public class Bone {
                 ", childBoneIndex=" + childBoneIndex +
                 ", boneType=" + boneType +
                 ", ikParent=" + ikParent +
+                ", isKnee=" + isKnee +
                 ", position=" + Arrays.toString(position) +
                 '}';
     }

@@ -1,36 +1,41 @@
 package com.fyd.miku.helper;
 
 public class InterpolatorHelper {
+
+
     public static float bezier(float t, float x1, float y1, float x2, float y2) {
-        float lowTGuess = 0.0f;
-        float dividingT = 0.5f;
-        float highTGuess = 1.0f;
+        float min = 0;
+        float max = 1;
 
-        float lowXCalc;
-        float divideXCalc;
+        float ct = t;
+        while (true) {
+            float x11 = x1 * ct;
+            float x12 = x1 + (x2 - x1) * ct;
+            float x13 = x2 + (1 - x2) * ct;
 
-        for (int i = 0; i < 100; ++i) {
-            lowXCalc = t - parBezFunc(lowTGuess, x1, x2);
-            divideXCalc = t - parBezFunc(dividingT, x1, x2);
+            float x21 = x11 + (x12 - x11) * ct;
+            float x22 = x12 + (x13 - x12) * ct;
 
-            if (Math.abs(divideXCalc) < 0.0001) {
-                break;
-            }
+            float x3 = x21 + (x22 - x21) * ct;
 
-            if (lowXCalc * divideXCalc <0 ) {
-                highTGuess = dividingT;
-                dividingT = (dividingT + lowTGuess) / 2.0f;
+            if (Math.abs(x3 - t) < 0.0001) {
+                float y11 = y1 * ct;
+                float y12 = y1 + (y2 - y1) * ct;
+                float y13 = y2 + (1 - y2) * ct;
+
+                float y21 = y11 + (y12 - y11) * ct;
+                float y22 = y12 + (y13 - y12) * ct;
+
+                float y3 = y21 + (y22 - y21) * ct;
+
+                return y3;
+            } else if (x3 < t) {
+                min = ct;
             } else {
-                lowTGuess = dividingT;
-                dividingT = (highTGuess + dividingT) / 2.0f;
+                max = ct;
             }
+            ct = min * 0.5f + max * 0.5f;
         }
-        return parBezFunc(dividingT,y1,y2);
-    }
-
-    //parameterized Bezier Curve Function
-    private static float parBezFunc(float t, float p1, float p2) {
-        return (3*( (1-t)*(1-t) )*t*p1) + (3*(1-t)*(t*t)*p2) + (t*t*t);
     }
 
     /**

@@ -138,6 +138,7 @@ public class PMDFile {
             bone.childBoneIndex = pmdStream.readUnsignedShort();
             bone.boneType = pmdStream.read();
             bone.ikParent = pmdStream.readUnsignedShort();
+            bone.isKnee = bone.boneName.contains("ひざ");
             pmdStream.readFloats(bone.position);
             Log.i("mmd", "bone: " + i + ", " + bone);
             bones.add(bone);
@@ -163,6 +164,7 @@ public class PMDFile {
             for(int j = 0; j < ikInfo.boneNum; ++j) {
                 ikInfo.boneList.add(pmdStream.readUnsignedShort());
             }
+            Log.i("ikinfo", "ik " + i + ": " + ikInfo);
             ikInfos.add(ikInfo);
         }
     }

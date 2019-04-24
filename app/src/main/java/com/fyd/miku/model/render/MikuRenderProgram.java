@@ -2,6 +2,7 @@ package com.fyd.miku.model.render;
 
 import android.content.Context;
 import android.opengl.GLES20;
+import android.util.Log;
 
 import com.fyd.miku.R;
 import com.fyd.miku.helper.ResourceHelper;
@@ -43,10 +44,15 @@ public class MikuRenderProgram {
         String vert = ResourceHelper.getRawResourceString(context, R.raw.mmd_vert);
         program = ShaderHelper.buildProgram(vert, frag);
         aPositionLocation = GLES20.glGetAttribLocation(program, "aPosition");
+        Log.i("uniform", "aPositionLocation: " + aPositionLocation);
         aNormalLocation = GLES20.glGetAttribLocation(program, "aNormal");
+        Log.i("uniform", "aNormalLocation: " + aNormalLocation);
         aUVLocation = GLES20.glGetAttribLocation(program, "aUV");
+        Log.i("uniform", "aUVLocation: " + aUVLocation);
         aBoneIndicesLocation = GLES20.glGetAttribLocation(program, "aBoneIndices");
+        Log.i("uniform", "aBoneIndicesLocation: " + aBoneIndicesLocation);
         aBoneWeightAndEdgeFlagLocation = GLES20.glGetAttribLocation(program, "aBoneWeightAndEdgeFlag");
+        Log.i("uniform", "aBoneWeightAndEdgeFlagLocation: " + aBoneWeightAndEdgeFlagLocation);
 
         uProjectionMatrixLocation = GLES20.glGetUniformLocation(program, "uProjectionMatrix");
         uViewMatrixLocation = GLES20.glGetUniformLocation(program, "uViewMatrix");

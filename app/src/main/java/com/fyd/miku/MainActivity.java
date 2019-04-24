@@ -17,6 +17,7 @@ import java.io.InputStream;
 
 public class MainActivity extends AppCompatActivity {
     MikuRender mikuRender;
+    MikuModel mikuModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,11 +29,17 @@ public class MainActivity extends AppCompatActivity {
         MikuGLRender glRender = new MikuGLRender(this, mikuRender);
         surfaceView.setRenderer(glRender);
 
-        Button button = findViewById(R.id.button);
+        Button button = findViewById(R.id.load);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 parsePmd();
+            }
+        });
+        findViewById(R.id.start).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startAnimation();
             }
         });
     }
@@ -43,17 +50,26 @@ public class MainActivity extends AppCompatActivity {
             PMDFile pmdParser = new PMDFile();
             InputStream inputStream = assetManager.open("Miku_Hatsune_Ver2.pmd");
             pmdParser.parse(inputStream);
-            MikuModel mikuModel = new MikuModel(pmdParser);
+            mikuModel = new MikuModel(pmdParser);
             mikuRender.setMikuModel(mikuModel);
             inputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-            VMDFile vmdFile = new VMDFile();
+    private void startAnimation() {
+        AssetManager assetManager = getAssets();
+        VMDFile vmdFile = new VMDFile();
+        InputStream inputStream;
+        try {
 //            inputStream = assetManager.open("wavefile_full_miku_v2.vmd");
-            inputStream = assetManager.open("motion.vmd");
+            inputStream = assetManager.open("ik3.vmd");
             vmdFile.parse(inputStream);
             mikuModel.attachMotion(vmdFile);
         } catch (IOException e) {
             e.printStackTrace();
         }
+
     }
 }

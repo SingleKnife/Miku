@@ -1,7 +1,7 @@
 uniform mat4 uProjectionMatrix;
 uniform mat4 uViewMatrix;
 uniform mat4 uModelMatrix;
-uniform mat4 uBoneMatrices[150];
+uniform mat4 uBoneMatrices[140];
 uniform vec3 uLightDir;
 
 attribute vec3 aPosition;
@@ -14,6 +14,7 @@ varying vec2 UV;
 varying vec3 normal;
 varying vec3 fragPos;
 varying vec3 lightDir;
+varying float edgeFlag;
 
 void main() {
     vec4 position = vec4(aPosition.x, aPosition.y, aPosition.z, 1.0);
@@ -27,7 +28,7 @@ void main() {
     position.w = 1.0;
     normal = normalize(mat3(boneMatrix) * aNormal);
 
-    int edgeFlag = int(aBoneWeightAndEdgeFlag.y);
+    edgeFlag = aBoneWeightAndEdgeFlag.y;
 	gl_Position = uProjectionMatrix * modelViewMatrix * position;
     UV = aUV;
     normal = normalize(mat3(modelViewMatrix) * aNormal);

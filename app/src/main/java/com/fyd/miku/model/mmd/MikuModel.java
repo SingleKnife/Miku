@@ -29,7 +29,7 @@ public class MikuModel {
         this.ikInfos = pmdFile.ikInfos;
         this.joints = pmdFile.joints;
         this.rigidBodies = pmdFile.rigidBodies;
-        boneManager = new MikuBoneManager(pmdFile.bones);
+        boneManager = new MikuBoneManager(pmdFile.bones, pmdFile.ikInfos);
         initMeshes(pmdFile.materials);
     }
 

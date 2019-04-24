@@ -14,8 +14,6 @@ import com.fyd.miku.model.mmd.MikuModel;
 import java.nio.ByteBuffer;
 
 public class MikuRender {
-    public static final int MAX_SUPPORT_BONE_NUM = 50;
-
     private MikuModel mikuModel;
     private MikuRenderProgram renderProgram;
     private Context context;

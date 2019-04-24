@@ -6,13 +6,15 @@ public class MikuBone {
     String name;
     int matrixIndex;        //
     int parentIndex;
+    boolean isKnee;         //是否是膝盖
+
+    float rotateLowerLimit; //骨骼旋转最小角度
+    float rotateUpperLimit; //骨骼旋转最大角度
 
     float[] position;
-    float[] translate;      //骨骼位移
-    float[] rotation;       //骨骼旋转四元组
     float[] scale;          //骨骼缩放
 
-    float[] localTransform; //骨骼以本身为参考系的变换
+    float[] localTransform; //骨骼相对于父骨骼变换
 
     boolean isUpdated = false;
 

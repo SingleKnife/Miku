@@ -4,14 +4,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class IKInfo {
-    int ikBoneIndex;      //
-    int targetBoneIndex;
-    int boneNum;           //当前ik链中的骨骼数量
-    int iterationNum;     //到达target bone的迭代次数
-    float rotateLimit;      //旋转最大度数
-    List<Integer> boneList;   //当前ik链中的骨骼
+    public int ikBoneIndex;      //
+    public int targetBoneIndex;
+    public int boneNum;           //当前ik链中的骨骼数量
+    public int iterationNum;     //到达target bone的迭代次数
+    public float rotateLimit;      //旋转最大度数
+    public List<Integer> boneList;   //当前ik链中的骨骼
 
     IKInfo() {
         boneList = new ArrayList<>();
+    }
+
+    @Override
+    public String toString() {
+        return "IKInfo{" +
+                "ikBoneIndex=" + ikBoneIndex +
+                ", targetBoneIndex=" + targetBoneIndex +
+                ", boneNum=" + boneNum +
+                ", iterationNum=" + iterationNum +
+                ", rotateLimit=" + rotateLimit +
+                ", boneList=" + boneList +
+                '}';
     }
 }

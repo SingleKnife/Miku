@@ -1,5 +1,8 @@
 package com.fyd.miku.model.mmd;
 
+import android.util.Log;
+
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,6 +17,7 @@ public class MikuAnimation {
     int fps = 30;
     long startTime;
     long currentTime;
+    long prevTime;
     int maxFrame;
     int currentFrame;
 
@@ -40,13 +44,21 @@ public class MikuAnimation {
     }
 
     public void update() {
+        if(startTime == 0) {
+            startTime = System.currentTimeMillis();
+        }
+        prevTime = currentTime;
+        currentTime = System.currentTimeMillis() - startTime;
         if(status == STATUS_PLAYING) {
-            setBoneMotion(currentFrame++);
+            float currentFrame = getCurrentFrame();
+            Log.i("anim", "currentFrame: " + currentFrame);
+            setBoneMotion(getCurrentFrame());
         }
     }
 
-    void setBoneMotion(int frame) {
-        for(int boneIndex = 0; boneIndex < boneManager.getBonesSize(); ++boneIndex) {
+    void setBoneMotion(float frame) {
+        Log.i("anim", "setBoneMotion");
+        for(int boneIndex = 0; boneIndex < boneManager.getBoneNum(); ++boneIndex) {
             float[] boneRotation = {0f, 0f, 0f, 1f};
             float[] boneTranslate = {0f, 0f, 0f};
             //获取骨骼对应的动画帧
@@ -56,9 +68,14 @@ public class MikuAnimation {
                 boneRotation = boneFrame.boneRotation;
                 boneTranslate = boneFrame.boneTranslate;
             }
+            Log.i("anim", "setBoneMotion, " + boneIndex + ", rotation: " + Arrays.toString(boneRotation) + ", boneTranslate: " + Arrays.toString(boneTranslate));
             boneManager.setBoneMotion(boneIndex, boneRotation, boneTranslate);
         }
         boneManager.updateAllBonesMotion();
+    }
+
+    private float getCurrentFrame() {
+        return currentTime * 30.0f / 1000.0f;
     }
 
     void startAnimation() {

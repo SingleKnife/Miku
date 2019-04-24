@@ -5,6 +5,7 @@ import android.util.Log;
 import com.fyd.miku.helper.InterpolatorHelper;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -38,7 +39,7 @@ public class BoneFrameManager {
      * 获取该帧对应的动画
      * @param frame 帧数
      */
-    BoneFrame getBoneFrame(int frame) {
+    BoneFrame getBoneFrame(float frame) {
         currentKeyFrameIndex = Math.min(currentKeyFrameIndex, keyFrames.size() - 1);
         nextKeyFrameIndex = Math.min(nextKeyFrameIndex, keyFrames.size() - 1);
 
@@ -49,23 +50,26 @@ public class BoneFrameManager {
                 nextKeyFrameIndex = Math.min(nextKeyFrameIndex + 1, keyFrames.size() - 1);
             }
         }
-        return interpolateFrame(frame);
+        if(currentKeyFrameIndex == nextKeyFrameIndex) {
+            return keyFrames.get(currentKeyFrameIndex);
+        } else {
+            return interpolateFrame(frame);
+        }
+
     }
 
-    private BoneFrame interpolateFrame(int frame) {
-
+    private BoneFrame interpolateFrame(float frame) {
         BoneFrame currentKeyFrame = keyFrames.get(currentKeyFrameIndex);
         BoneFrame nextKeyFrame = keyFrames.get(nextKeyFrameIndex);
         BezierParameters bezier = currentKeyFrame.interpolation;
 
         BoneFrame boneFrame = new BoneFrame();
-        float t = (float)(frame - currentKeyFrame.frame * 2) / (float)(nextKeyFrame.frame * 2 - currentKeyFrame.frame * 2);
+        float t = (frame - currentKeyFrame.frame) / (nextKeyFrame.frame - currentKeyFrame.frame);
         float s;
         //calculate x interpolated value
         s = InterpolatorHelper.bezier(t, bezier.x1[0], bezier.x1[1], bezier.x2[0], bezier.x2[1]);
         boneFrame.boneTranslate[0] = currentKeyFrame.boneTranslate[0]
                 + (nextKeyFrame.boneTranslate[0] - currentKeyFrame.boneTranslate[0]) * s;
-        Log.i(TAG, "interpolateFrame, frame: " + frame + ", t: " + t + ", s: " + s);
 
         //calculate y interpolated value
         s = InterpolatorHelper.bezier(t, bezier.y1[0], bezier.y1[1], bezier.y2[0], bezier.y2[1]);

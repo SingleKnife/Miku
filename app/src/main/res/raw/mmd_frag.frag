@@ -19,6 +19,8 @@ varying vec3 normal;
 varying vec3 fragPos;       //view space中片段位置
 varying vec3 lightDir;
 
+varying float edgeFlag;
+
 void main() {
     vec3 eyeDir = normalize(fragPos);
     float ln = dot(lightDir, normal);

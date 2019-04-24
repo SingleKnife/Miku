@@ -59,6 +59,5 @@ public class MikuGLRender implements GLSurfaceView.Renderer {
             mikuRender.draw();
             mikuRender.endDraw();
         }
-//        ShaderHelper.checkGlError("draw");
     }
 }
