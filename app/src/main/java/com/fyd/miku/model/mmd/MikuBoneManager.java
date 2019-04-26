@@ -118,6 +118,9 @@ public class MikuBoneManager {
         float[] tempMatrix = new float[16];
 
         for(IKInfo ikInfo : ikInfos) {
+            if(ikInfo.ikBoneIndex != 89) {
+                continue;
+            }
             MikuBone ikBone = mikuBones.get(ikInfo.ikBoneIndex);
             MikuBone targetBone = mikuBones.get(ikInfo.targetBoneIndex);
             calculateBoneGlobalMatrix(ikBone);
@@ -140,6 +143,8 @@ public class MikuBoneManager {
 
                     Matrix.multiplyMV(localEffectorPos, 0, invCoord, 0, effectorPos, 0);
                     Matrix.multiplyMV(localTargetPos, 0, invCoord, 0, targetPos, 0);
+                    Log.i(TAG, "localEffectorPos: " + linkBone.matrixIndex + ": " + localEffectorPos[0] + ", " + localEffectorPos[1] + ", " + localEffectorPos[2]);
+                    Log.i(TAG, "localTargetPos: " + linkBone.matrixIndex + ": " + localTargetPos[0] + ", " + localTargetPos[1] + ", " + localTargetPos[2]);
 
                     MatrixHelper.normaizeVec3(localEffectorDir, localEffectorPos);
                     MatrixHelper.normaizeVec3(localTargetDir, localTargetPos);
@@ -151,17 +156,21 @@ public class MikuBoneManager {
                     float angle = (float) Math.acos(p);
                     angle *= ikInfo.rotateLimit;
                     angle = (float) Math.toDegrees(angle);
+                    Log.i(TAG, "updateIk: angle: " + angle);
 
                     MatrixHelper.crossVec3(axis, localEffectorDir, localTargetDir);
 
                     if(linkBone.isKnee) {
-                        Matrix.rotateM(tempMatrix, 0, angle, axis[0], axis[1], axis[2]);
+                        Matrix.rotateM(tempMatrix, 0, linkBone.localTransform, 0, angle, axis[0], axis[1], axis[2]);
                         float[] desiredRotation = new float[4];
                         MatrixHelper.matrixToQuaternion(desiredRotation, tempMatrix);
                         float[] desiredEuler = new float[3];
-                        Log.i(TAG, "euler: " + Arrays.toString(desiredEuler));
                         MatrixHelper.quaternionToEulerRadius(desiredEuler, desiredRotation);
-                        desiredEuler[0] = (float) (Math.max(0, Math.min(Math.PI, desiredEuler[0])) / Math.PI * 180);
+                        Log.i(TAG, "euler: " + Arrays.toString(desiredEuler));
+                        float minDegree = 0f;
+                        float maxDegree = (float) Math.PI;
+
+                        desiredEuler[0] = (float) (Math.max(minDegree, Math.min(maxDegree, desiredEuler[0])) / Math.PI * 180);
                         desiredEuler[1] = 0;
                         desiredEuler[2] = 0;
                         float translateX = linkBone.localTransform[12];
@@ -180,6 +189,7 @@ public class MikuBoneManager {
                     resetBoneUpdateStatus(linkBone);
                 }
                 if(MatrixHelper.length(effectorPos, targetPos) < 0.001f) {
+                    Log.i(TAG, "updateIk: reach target pos");
                     break;
                 }
             }

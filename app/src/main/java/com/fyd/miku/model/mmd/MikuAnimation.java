@@ -21,7 +21,7 @@ public class MikuAnimation {
     int maxFrame;
     int currentFrame;
 
-    int status = STATUS_PLAYING;
+    int status = STATUS_PAUSE;
 
     public MikuAnimation(MikuBoneManager boneManager) {
         allBonesFrames = new HashMap<>();
