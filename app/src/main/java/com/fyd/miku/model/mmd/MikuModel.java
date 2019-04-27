@@ -58,6 +58,12 @@ public class MikuModel {
         }
     }
 
+    public void setFrame(float frame) {
+        if(mikuAnimation != null) {
+            mikuAnimation.setBoneMotion(frame);
+        }
+    }
+
     public AllVertex getAllVertex() {
         return allVertex;
     }

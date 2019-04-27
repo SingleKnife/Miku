@@ -75,4 +75,6 @@ public class Material {
     public boolean hasToonTexture() {
         return toonIndex != 255;
     }
+
+
 }

@@ -18,12 +18,12 @@ public class MikuBoneManager {
 
     private List<MikuBone> mikuBones;
     private List<IKInfo> ikInfos;
-    private float[] allMatrices;       //所有骨骼矩阵
+    private float[] allBoneMatriices;
 
     MikuBoneManager(List<Bone> bones, List<IKInfo> ikInfos) {
         this.mikuBones = new ArrayList<>(bones.size());
-        allMatrices = new float[bones.size() * 16];
         this.ikInfos = ikInfos;
+        allBoneMatriices = new float[bones.size() * 16];
         for(int i = 0; i < bones.size(); ++i) {
             Bone bone = bones.get(i);
             MikuBone mikuBone = new MikuBone();
@@ -32,17 +32,22 @@ public class MikuBoneManager {
             mikuBone.matrixIndex = i;
             mikuBone.parentIndex = bone.getParentBoneIndex();
             mikuBone.isKnee = bone.isKnee();
-            Matrix.setIdentityM(allMatrices, i * 16);
             mikuBones.add(mikuBone);
+            Matrix.setIdentityM(allBoneMatriices, i * 16);
         }
 
         for(MikuBone mikuBone : mikuBones) {
             initBoneLocalTransform(mikuBone);
         }
+
     }
 
     int getBoneNum() {
         return mikuBones.size();
+    }
+
+    public float[] getAllMatrices() {
+        return allBoneMatriices;
     }
 
 
@@ -69,8 +74,6 @@ public class MikuBoneManager {
 
 
     void updateAllBonesMotion() {
-        Log.i(TAG, "updateAllBonesMotion");
-
         for(MikuBone mikuBone : mikuBones) {
             calculateBoneGlobalMatrix(mikuBone);
         }
@@ -80,8 +83,9 @@ public class MikuBoneManager {
         for (int i = 0; i < mikuBones.size(); i++) {
             MikuBone bone = mikuBones.get(i);
             bone.isUpdated = false;
-            Matrix.translateM(allMatrices, i * 16,
+            Matrix.translateM(bone.globalTransform, 0,
                     -bone.position[0], -bone.position[1], -bone.position[2]);
+            System.arraycopy(bone.globalTransform, 0, allBoneMatriices, i * 16, 16);
         }
     }
 
@@ -92,12 +96,12 @@ public class MikuBoneManager {
         if(mikuBone.parentIndex != INVALID_BONE_INDEX) {
             MikuBone parentBone = mikuBones.get(mikuBone.parentIndex);
             calculateBoneGlobalMatrix(parentBone);
-            Matrix.multiplyMM(allMatrices, mikuBone.matrixIndex * 16,
-                    allMatrices, parentBone.matrixIndex * 16,
+            Matrix.multiplyMM(mikuBone.globalTransform, 0,
+                    parentBone.globalTransform, 0,
                     mikuBone.localTransform, 0
                     );
         } else {
-            System.arraycopy(mikuBone.localTransform, 0, allMatrices, mikuBone.matrixIndex * 16, 16);
+            System.arraycopy(mikuBone.localTransform, 0, mikuBone.globalTransform, 0, 16);
         }
         mikuBone.isUpdated = true;
     }
@@ -115,84 +119,72 @@ public class MikuBoneManager {
         float[] axis = new float[3];
 
         float[] invCoord = new float[16];
-        float[] tempMatrix = new float[16];
+        float[] legPos = new float[3];
 
         for(IKInfo ikInfo : ikInfos) {
-            if(ikInfo.ikBoneIndex != 89) {
-                continue;
-            }
             MikuBone ikBone = mikuBones.get(ikInfo.ikBoneIndex);
-            MikuBone targetBone = mikuBones.get(ikInfo.targetBoneIndex);
+            MikuBone effectorBone = mikuBones.get(ikInfo.effectorBoneIndex);
             calculateBoneGlobalMatrix(ikBone);
-            targetPos[0] = allMatrices[ikBone.matrixIndex * 16 + 12];
-            targetPos[1] = allMatrices[ikBone.matrixIndex * 16 + 13];
-            targetPos[2] = allMatrices[ikBone.matrixIndex * 16 + 14];
+            targetPos[0] = ikBone.globalTransform[12];
+            targetPos[1] = ikBone.globalTransform[13];
+            targetPos[2] = ikBone.globalTransform[14];
             targetPos[3] = 1;
-            Log.i(TAG, "targetPos: " + ikInfo.targetBoneIndex + ": " + targetPos[0] + ", " + targetPos[1] + ", " + targetPos[2]);
             for(int i = 0; i < ikInfo.iterationNum; ++i) {
                 for(int boneIndex : ikInfo.boneList) {
                     MikuBone linkBone = mikuBones.get(boneIndex);
-                    calculateBoneGlobalMatrix(targetBone);
-                    effectorPos[0] = allMatrices[targetBone.matrixIndex * 16 + 12];
-                    effectorPos[1] = allMatrices[targetBone.matrixIndex * 16 + 13];
-                    effectorPos[2] = allMatrices[targetBone.matrixIndex * 16 + 14];
+                    calculateBoneGlobalMatrix(effectorBone);
+                    effectorPos[0] = effectorBone.globalTransform[12];
+                    effectorPos[1] = effectorBone.globalTransform[13];
+                    effectorPos[2] = effectorBone.globalTransform[14];
                     effectorPos[3] = 1;
 
                     calculateBoneGlobalMatrix(linkBone);
-                    Matrix.invertM(invCoord, 0, allMatrices, linkBone.matrixIndex * 16);
+                    if(linkBone.isKnee) {
+                        if(i == 0) {
+                            MikuBone legBone = mikuBones.get(linkBone.parentIndex);
+                            calculateBoneGlobalMatrix(legBone);
+                            legPos[0] = legBone.globalTransform[12];
+                            legPos[1] = legBone.globalTransform[13];
+                            legPos[2] = legBone.globalTransform[14];
+
+                            float shankLength = MatrixHelper.length(linkBone.position, effectorBone.position);  //小腿长度
+                            float thighLength = MatrixHelper.length(legBone.position, linkBone.position);       //大腿长度
+                            float targetLength = MatrixHelper.length(legPos, targetPos);                        //大腿骨骼到目标的距离
+
+                            //小腿和大腿之间夹角
+                            double inclination = Math.acos((shankLength * shankLength + thighLength * thighLength - targetLength * targetLength) / (2 * shankLength * thighLength));
+                            if(!Double.isNaN(inclination)) {
+                                Matrix.rotateM(linkBone.localTransform, 0, (float)Math.toDegrees(Math.PI - inclination), -1, 0, 0);
+                            }
+                        }
+                        continue;
+                    }
+                    Matrix.invertM(invCoord, 0, linkBone.globalTransform, 0);
 
                     Matrix.multiplyMV(localEffectorPos, 0, invCoord, 0, effectorPos, 0);
                     Matrix.multiplyMV(localTargetPos, 0, invCoord, 0, targetPos, 0);
-                    Log.i(TAG, "localEffectorPos: " + linkBone.matrixIndex + ": " + localEffectorPos[0] + ", " + localEffectorPos[1] + ", " + localEffectorPos[2]);
-                    Log.i(TAG, "localTargetPos: " + linkBone.matrixIndex + ": " + localTargetPos[0] + ", " + localTargetPos[1] + ", " + localTargetPos[2]);
 
                     MatrixHelper.normaizeVec3(localEffectorDir, localEffectorPos);
                     MatrixHelper.normaizeVec3(localTargetDir, localTargetPos);
 
                     float p = MatrixHelper.dotVec3(localEffectorDir, localTargetDir);
-                    Log.i(TAG, "p: " + p);
                     if(p > 1 - 1.0e-6f) continue;
 
                     float angle = (float) Math.acos(p);
                     angle *= ikInfo.rotateLimit;
                     angle = (float) Math.toDegrees(angle);
-                    Log.i(TAG, "updateIk: angle: " + angle);
 
                     MatrixHelper.crossVec3(axis, localEffectorDir, localTargetDir);
+                    Matrix.rotateM(linkBone.localTransform, 0, angle, axis[0], axis[1], axis[2]);
 
-                    if(linkBone.isKnee) {
-                        Matrix.rotateM(tempMatrix, 0, linkBone.localTransform, 0, angle, axis[0], axis[1], axis[2]);
-                        float[] desiredRotation = new float[4];
-                        MatrixHelper.matrixToQuaternion(desiredRotation, tempMatrix);
-                        float[] desiredEuler = new float[3];
-                        MatrixHelper.quaternionToEulerRadius(desiredEuler, desiredRotation);
-                        Log.i(TAG, "euler: " + Arrays.toString(desiredEuler));
-                        float minDegree = 0f;
-                        float maxDegree = (float) Math.PI;
-
-                        desiredEuler[0] = (float) (Math.max(minDegree, Math.min(maxDegree, desiredEuler[0])) / Math.PI * 180);
-                        desiredEuler[1] = 0;
-                        desiredEuler[2] = 0;
-                        float translateX = linkBone.localTransform[12];
-                        float translateY = linkBone.localTransform[13];
-                        float translateZ = linkBone.localTransform[14];
-                        Matrix.setRotateEulerM(linkBone.localTransform, 0, desiredEuler[0], desiredEuler[1], desiredEuler[2]);
-                        linkBone.localTransform[12] = translateX;
-                        linkBone.localTransform[13] = translateY;
-                        linkBone.localTransform[14] = translateZ;
-
-                    } else {
-                        Matrix.rotateM(linkBone.localTransform, 0, angle, axis[0], axis[1], axis[2]);
-                    }
-
-                    resetBoneUpdateStatus(targetBone);
+                    resetBoneUpdateStatus(effectorBone);
                     resetBoneUpdateStatus(linkBone);
                 }
                 if(MatrixHelper.length(effectorPos, targetPos) < 0.001f) {
-                    Log.i(TAG, "updateIk: reach target pos");
                     break;
                 }
             }
+            resetBoneUpdateStatus(ikBone);
         }
     }
 
@@ -234,13 +226,7 @@ public class MikuBoneManager {
         return result;
     }
 
-    public float[] getAllMatrices() {
-        return allMatrices;
-    }
-
     public void printBoneMatrix(int boneIndex) {
-        float[] matrix = new float[16];
-        System.arraycopy(allMatrices, boneIndex * 16, matrix, 0, 16);
-        Log.i(TAG, "bone " + boneIndex + ": " + Arrays.toString(matrix));
+        Log.i(TAG, "bone " + boneIndex + ": " + Arrays.toString(mikuBones.get(boneIndex).globalTransform));
     }
 }

@@ -5,7 +5,7 @@ import java.util.List;
 
 public class IKInfo {
     public int ikBoneIndex;      //
-    public int targetBoneIndex;
+    public int effectorBoneIndex;
     public int boneNum;           //当前ik链中的骨骼数量
     public int iterationNum;     //到达target bone的迭代次数
     public float rotateLimit;      //旋转最大度数
@@ -19,7 +19,7 @@ public class IKInfo {
     public String toString() {
         return "IKInfo{" +
                 "ikBoneIndex=" + ikBoneIndex +
-                ", targetBoneIndex=" + targetBoneIndex +
+                ", effectorBoneIndex=" + effectorBoneIndex +
                 ", boneNum=" + boneNum +
                 ", iterationNum=" + iterationNum +
                 ", rotateLimit=" + rotateLimit +

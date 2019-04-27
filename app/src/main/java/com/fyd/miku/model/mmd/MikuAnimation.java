@@ -19,7 +19,7 @@ public class MikuAnimation {
     long currentTime;
     long prevTime;
     int maxFrame;
-    int currentFrame;
+    int currentFrame = 0;
 
     int status = STATUS_PAUSE;
 
@@ -75,7 +75,8 @@ public class MikuAnimation {
     }
 
     private float getCurrentFrame() {
-        return currentTime * 30.0f / 1000.0f;
+//        return currentTime * 30.0f / 1000.0f;
+        return currentFrame ++;
     }
 
     void startAnimation() {

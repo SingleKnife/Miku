@@ -33,4 +33,8 @@ public class Mesh {
     public Material getMaterial() {
         return material;
     }
+
+    public List<Short> getBoneIndexMapping() {
+        return boneIndexMapping;
+    }
 }

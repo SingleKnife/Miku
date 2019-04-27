@@ -24,4 +24,21 @@
         android:layout_alignParentRight="true"
         />
 
+    <Button
+        android:id="@+id/increase"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/load"
+        android:text="增加"
+        />
+
+    <Button
+        android:id="@+id/decrease"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/load"
+        android:layout_toEndOf="@id/increase"
+        android:text="减少"
+        />
+
 </RelativeLayout>

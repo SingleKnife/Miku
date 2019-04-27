@@ -19,6 +19,8 @@ public class MainActivity extends AppCompatActivity {
     MikuRender mikuRender;
     MikuModel mikuModel;
 
+    int frame = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,6 +44,24 @@ public class MainActivity extends AppCompatActivity {
                 startAnimation();
             }
         });
+
+        findViewById(R.id.increase).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(mikuModel != null) {
+                    mikuModel.setFrame(++frame);
+                }
+            }
+        });
+
+        findViewById(R.id.decrease).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(mikuModel != null) {
+                    mikuModel.setFrame(--frame);
+                }
+            }
+        });
     }
 
     private void parsePmd() {
@@ -63,8 +83,8 @@ public class MainActivity extends AppCompatActivity {
         VMDFile vmdFile = new VMDFile();
         InputStream inputStream;
         try {
-//            inputStream = assetManager.open("wavefile_full_miku_v2.vmd");
-            inputStream = assetManager.open("ik.vmd");
+            inputStream = assetManager.open("wavefile_full_miku_v2.vmd");
+//            inputStream = assetManager.open("hou1.vmd");
             vmdFile.parse(inputStream);
             mikuModel.attachMotion(vmdFile);
         } catch (IOException e) {

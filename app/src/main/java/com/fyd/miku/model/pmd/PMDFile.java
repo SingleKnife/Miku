@@ -156,7 +156,7 @@ public class PMDFile {
         for(int i = 0; i < ikNum; ++i) {
             IKInfo ikInfo = new IKInfo();
             ikInfo.ikBoneIndex = pmdStream.readUnsignedShort();
-            ikInfo.targetBoneIndex = pmdStream.readUnsignedShort();
+            ikInfo.effectorBoneIndex = pmdStream.readUnsignedShort();
             ikInfo.boneNum = pmdStream.read();
             ikInfo.iterationNum = pmdStream.readUnsignedShort();
             ikInfo.rotateLimit = pmdStream.readFloat();

@@ -159,9 +159,9 @@ public class MatrixHelper {
             final float r = (float) Math.sqrt(trace + 1);
             final float s = 0.5f / r;
             result[0] = (matrix[9] - matrix[6]) * s;
-            result[0] = (matrix[2] - matrix[8]) * s;
-            result[0] = (matrix[4] - matrix[1]) * s;
-            result[0] = 0.5f * r;
+            result[1] = (matrix[2] - matrix[8]) * s;
+            result[2] = (matrix[4] - matrix[1]) * s;
+            result[3] = 0.5f * r;
         }
     }
 
