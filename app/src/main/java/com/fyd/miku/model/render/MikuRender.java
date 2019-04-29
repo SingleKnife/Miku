@@ -6,68 +6,90 @@ import android.graphics.BitmapFactory;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import android.opengl.Matrix;
+import android.util.Log;
 
-import com.fyd.miku.model.pmd.Material;
 import com.fyd.miku.model.mmd.Mesh;
 import com.fyd.miku.model.mmd.MikuModel;
+import com.fyd.miku.model.pmd.AllVertex;
+import com.fyd.miku.model.pmd.Material;
 
-import java.nio.ByteBuffer;
-
-public class MikuRender {
+public class MikuRender implements Render{
     private MikuModel mikuModel;
     private MikuRenderProgram renderProgram;
     private Context context;
     private int[] toonTextures = new int[10];
-
+    private int vertexBufferId;
+    private int indexBufferId;
 
     private float[] modelMatrix = new float[16];
 
     private float[] lightDir = {2f, 2f, 4f};
     private float[] lightColor = {1.0f, 1.0f, 1.0f};
 
-    public MikuRender(Context context) {
+    public MikuRender(Context context, MikuModel mikuModel) {
         this.context = context;
+        this.mikuModel = mikuModel;
     }
 
-    public void onSurfaceCreate() {
+    public void createOnGLThread() {
+        Log.i("MikuRender", "createOnGLThread: " + Thread.currentThread());
         renderProgram = new MikuRenderProgram(context);
-    }
-
-    public void onSurfaceChanged(int width, int height) {
-
         Matrix.setIdentityM(modelMatrix, 0);
         Matrix.scaleM(modelMatrix, 0, 1, 1, -1f);
         generateToonTextures();
+
+        int[] bufferIds = new int[2];
+        GLES20.glGenBuffers(2, bufferIds, 0);
+        vertexBufferId = bufferIds[0];
+        indexBufferId = bufferIds[1];
+
+        AllVertex vertexData = mikuModel.getAllVertex();
+        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vertexBufferId);
+        GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, vertexData.getAllVertices().limit(),
+                vertexData.getAllVertices(), GLES20.GL_STATIC_DRAW);
+        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
+
+        GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, indexBufferId);
+        GLES20.glBufferData(GLES20.GL_ELEMENT_ARRAY_BUFFER, vertexData.getIndices().limit(),
+                vertexData.getIndices(), GLES20.GL_STATIC_DRAW);
+        GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, 0);
     }
 
+    @Override
     public void beginDraw() {
         renderProgram.useProgram();
     }
 
+    @Override
     public void draw() {
-        if(mikuModel == null) {
-            return;
-        }
-
         renderProgram.setLight(lightDir, lightColor);
         drawModel(mikuModel);
     }
 
-    public void endDraw() {
-
-    }
-
+    @Override
     public void updateMatrix(float[] projectionMatrix, float[] viewMatrix) {
         renderProgram.updateMatrix(projectionMatrix, viewMatrix, modelMatrix);
     }
 
+    @Override
+    public void destroy() {
+        renderProgram.destroy();
+        int[] bufferIds = {vertexBufferId, indexBufferId};
+        GLES20.glDeleteBuffers(2, bufferIds, 0);
+    }
+
     private void drawModel(MikuModel model) {
+        model.updateMotion();
+        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vertexBufferId);
+        GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, indexBufferId);
         renderProgram.bindVertexData(model.getAllVertex());
         renderProgram.bindBoneMatrices(model.getBoneManager().getAllMatrices());
-        model.updateMotion();
         for(Mesh mesh : model.getMeshes()) {
             drawMesh(model, mesh);
         }
+        renderProgram.endDraw();
+        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
+        GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, 0);
     }
 
     private void drawMesh(MikuModel model, Mesh mesh) {
@@ -80,12 +102,8 @@ public class MikuRender {
         int toonTextureId = hasToonTexture ? toonTextures[material.getToonIndex()] : -1;
         renderProgram.setToonTexture(hasToonTexture, toonTextureId);
 
-        ByteBuffer indexBuffer = model.getAllVertex().getIndices(mesh.getIndexOffset());
-        renderProgram.draw(indexBuffer, mesh.getIndexCount());
-    }
-
-    public void setMikuModel(MikuModel model) {
-        this.mikuModel = model;
+        int indexByteOffset = model.getAllVertex().getIndicesByteOffset(mesh.getIndexOffset());
+        renderProgram.draw(indexByteOffset, mesh.getIndexCount());
     }
 
     private void generateToonTextures() {
@@ -102,4 +120,6 @@ public class MikuRender {
             toonBitmap.recycle();
         }
     }
+
+
 }

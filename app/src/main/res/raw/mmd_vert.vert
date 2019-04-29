@@ -26,12 +26,12 @@ void main() {
     mat4 boneMatrix = firstBoneMatrix * firstBoneWeight + secondBoneMatrix * (1.0 - firstBoneWeight);
     position = boneMatrix * position;
     position.w = 1.0;
-    normal = normalize(mat3(boneMatrix) * aNormal);
+    vec3 animNormal = normalize(mat3(boneMatrix) * aNormal);
 
     edgeFlag = aBoneWeightAndEdgeFlag.y;
 	gl_Position = uProjectionMatrix * modelViewMatrix * position;
     UV = aUV;
-    normal = normalize(mat3(modelViewMatrix) * aNormal);
+    normal = normalize(mat3(modelViewMatrix) * animNormal);
     fragPos = (modelViewMatrix * position).xyz;
     lightDir = normalize((uViewMatrix * vec4(uLightDir, 0.0)).xyz);
 }

@@ -2,7 +2,6 @@ package com.fyd.miku.model.render;
 
 import android.content.Context;
 import android.opengl.GLES20;
-import android.util.Log;
 
 import com.fyd.miku.R;
 import com.fyd.miku.helper.ResourceHelper;
@@ -39,20 +38,17 @@ public class MikuRenderProgram {
 
     private int program;
 
+
+
     public MikuRenderProgram(Context context) {
         String frag = ResourceHelper.getRawResourceString(context, R.raw.mmd_frag);
         String vert = ResourceHelper.getRawResourceString(context, R.raw.mmd_vert);
         program = ShaderHelper.buildProgram(vert, frag);
         aPositionLocation = GLES20.glGetAttribLocation(program, "aPosition");
-        Log.i("uniform", "aPositionLocation: " + aPositionLocation);
         aNormalLocation = GLES20.glGetAttribLocation(program, "aNormal");
-        Log.i("uniform", "aNormalLocation: " + aNormalLocation);
         aUVLocation = GLES20.glGetAttribLocation(program, "aUV");
-        Log.i("uniform", "aUVLocation: " + aUVLocation);
         aBoneIndicesLocation = GLES20.glGetAttribLocation(program, "aBoneIndices");
-        Log.i("uniform", "aBoneIndicesLocation: " + aBoneIndicesLocation);
         aBoneWeightAndEdgeFlagLocation = GLES20.glGetAttribLocation(program, "aBoneWeightAndEdgeFlag");
-        Log.i("uniform", "aBoneWeightAndEdgeFlagLocation: " + aBoneWeightAndEdgeFlagLocation);
 
         uProjectionMatrixLocation = GLES20.glGetUniformLocation(program, "uProjectionMatrix");
         uViewMatrixLocation = GLES20.glGetUniformLocation(program, "uViewMatrix");
@@ -65,7 +61,7 @@ public class MikuRenderProgram {
         uDiffuseLocation = GLES20.glGetUniformLocation(program, "uDiffuse");
         uSpecularPowerLocation = GLES20.glGetUniformLocation(program, "uSpecularPower");
         uSpecularLocation = GLES20.glGetUniformLocation(program, "uSpecular");
-        uAmbientLocation = GLES20.glGetUniformLocation(program, "uAmbientLocation");
+        uAmbientLocation = GLES20.glGetUniformLocation(program, "uAmbient");
 
         uHasToonLocation = GLES20.glGetUniformLocation(program, "uHasToon");
         uToonTextureLocation = GLES20.glGetUniformLocation(program, "uToonTexture");
@@ -80,17 +76,17 @@ public class MikuRenderProgram {
 
     public void bindVertexData(AllVertex allVertex) {
         GLES20.glVertexAttribPointer(aPositionLocation, AllVertex.VERTEX_COMPONENT_SIZE,
-                GLES20.GL_FLOAT, false, AllVertex.BYTE_SIZE_PER_VERTEX, allVertex.getPositionBuffer());
-        GLES20.glVertexAttribPointer(aUVLocation, AllVertex.UV_COMPONENT_SIZE,
-                GLES20.GL_FLOAT, false, AllVertex.BYTE_SIZE_PER_VERTEX, allVertex.getUVBuffer());
+                GLES20.GL_FLOAT, false, AllVertex.BYTE_SIZE_PER_VERTEX, allVertex.getPositionByteOffset());
+//        GLES20.glVertexAttribPointer(aUVLocation, AllVertex.UV_COMPONENT_SIZE,
+//                GLES20.GL_FLOAT, false, AllVertex.BYTE_SIZE_PER_VERTEX, allVertex.getUVBuffer());
         GLES20.glVertexAttribPointer(aNormalLocation, AllVertex.NORMAL_COMPONENT_SIZE,
-                GLES20.GL_FLOAT, false, AllVertex.BYTE_SIZE_PER_VERTEX, allVertex.getNormalBuffer());
+                GLES20.GL_FLOAT, false, AllVertex.BYTE_SIZE_PER_VERTEX, allVertex.getNormalByteOffset());
         GLES20.glVertexAttribPointer(aBoneIndicesLocation, AllVertex.BONE_INDEX_COMPONENT_SIZE,
-                GLES20.GL_UNSIGNED_SHORT, false, AllVertex.BYTE_SIZE_PER_VERTEX, allVertex.getBoneIndexBuffer());
+                GLES20.GL_UNSIGNED_SHORT, false, AllVertex.BYTE_SIZE_PER_VERTEX, allVertex.getBoneIndexByteOffset());
         GLES20.glVertexAttribPointer(aBoneWeightAndEdgeFlagLocation, AllVertex.BONE_WEIGHT_AND_EDGE_FLAG_COMPONENT_SIZE,
-                GLES20.GL_UNSIGNED_BYTE, false, AllVertex.BYTE_SIZE_PER_VERTEX, allVertex.getBoneWeightAndEdgeFlagBuffer());
+                GLES20.GL_UNSIGNED_BYTE, false, AllVertex.BYTE_SIZE_PER_VERTEX, allVertex.getBoneWeightAndEdgeFlagByteOffset());
         GLES20.glEnableVertexAttribArray(aPositionLocation);
-        GLES20.glEnableVertexAttribArray(aUVLocation);
+//        GLES20.glEnableVertexAttribArray(aUVLocation);
         GLES20.glEnableVertexAttribArray(aNormalLocation);
         GLES20.glEnableVertexAttribArray(aBoneIndicesLocation);
         GLES20.glEnableVertexAttribArray(aBoneWeightAndEdgeFlagLocation);
@@ -126,14 +122,27 @@ public class MikuRenderProgram {
     }
 
 
-    public void updateMatrix(float[] projectionMatrix, float[] viewMatrix, float[] modelMatrix) {
+    void updateMatrix(float[] projectionMatrix, float[] viewMatrix, float[] modelMatrix) {
         GLES20.glUniformMatrix4fv(uProjectionMatrixLocation, 1, false, projectionMatrix, 0);
         GLES20.glUniformMatrix4fv(uViewMatrixLocation, 1, false, viewMatrix, 0);
         GLES20.glUniformMatrix4fv(uModelMatrixLocation, 1, false, modelMatrix, 0);
     }
 
-    public void draw(ByteBuffer indicesBuffer, int indexCount) {
-        GLES20.glDrawElements(GLES20.GL_TRIANGLES, indexCount, GLES20.GL_UNSIGNED_SHORT, indicesBuffer);
+    void draw(int indexByteOffset, int indexCount) {
+        GLES20.glDrawElements(GLES20.GL_TRIANGLES, indexCount, GLES20.GL_UNSIGNED_SHORT, indexByteOffset);
+    }
+
+     void endDraw() {
+        GLES20.glDisableVertexAttribArray(aPositionLocation);
+//        GLES20.glEnableVertexAttribArray(aUVLocation);
+        GLES20.glDisableVertexAttribArray(aNormalLocation);
+        GLES20.glDisableVertexAttribArray(aBoneIndicesLocation);
+        GLES20.glDisableVertexAttribArray(aBoneWeightAndEdgeFlagLocation);
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
+    }
+
+    void destroy() {
+        GLES20.glDeleteProgram(program);
     }
 
 }

@@ -17,11 +17,19 @@
         />
 
     <Button
+        android:id="@+id/load_anim"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="加载动画"
+        android:layout_alignParentRight="true"
+        />
+    <Button
         android:id="@+id/start"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="start"
         android:layout_alignParentRight="true"
+        android:layout_below="@id/load_anim"
+        android:text="开始动画"
         />
 
     <Button
@@ -30,6 +38,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/load"
         android:text="增加"
+        android:visibility="gone"
         />
 
     <Button
@@ -39,6 +48,7 @@
         android:layout_below="@id/load"
         android:layout_toEndOf="@id/increase"
         android:text="减少"
+        android:visibility="gone"
         />
 
 </RelativeLayout>

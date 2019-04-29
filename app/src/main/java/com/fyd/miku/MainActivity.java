@@ -18,18 +18,18 @@ import java.io.InputStream;
 public class MainActivity extends AppCompatActivity {
     MikuRender mikuRender;
     MikuModel mikuModel;
-
+    GLSurfaceView surfaceView;
+    MikuGLRender mikuGLRender;
     int frame = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        GLSurfaceView surfaceView = findViewById(R.id.gl_surface_view);
+        surfaceView = findViewById(R.id.gl_surface_view);
         surfaceView.setEGLContextClientVersion(2);
-        mikuRender = new MikuRender(this);
-        MikuGLRender glRender = new MikuGLRender(this, mikuRender);
-        surfaceView.setRenderer(glRender);
+        mikuGLRender = new MikuGLRender(this);
+        surfaceView.setRenderer(mikuGLRender);
 
         Button button = findViewById(R.id.load);
         button.setOnClickListener(new View.OnClickListener() {
@@ -38,10 +38,19 @@ public class MainActivity extends AppCompatActivity {
                 parsePmd();
             }
         });
+        findViewById(R.id.load_anim).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                loadAnimation();
+            }
+        });
+
         findViewById(R.id.start).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startAnimation();
+                if(mikuModel != null) {
+                    mikuModel.startAnimation();
+                }
             }
         });
 
@@ -71,14 +80,15 @@ public class MainActivity extends AppCompatActivity {
             InputStream inputStream = assetManager.open("Miku_Hatsune_Ver2.pmd");
             pmdParser.parse(inputStream);
             mikuModel = new MikuModel(pmdParser);
-            mikuRender.setMikuModel(mikuModel);
+            mikuRender = new MikuRender(this, mikuModel);
+            mikuGLRender.setMikuRender(mikuRender);
             inputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void startAnimation() {
+    private void loadAnimation() {
         AssetManager assetManager = getAssets();
         VMDFile vmdFile = new VMDFile();
         InputStream inputStream;
@@ -91,5 +101,22 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        surfaceView.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        surfaceView.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 }

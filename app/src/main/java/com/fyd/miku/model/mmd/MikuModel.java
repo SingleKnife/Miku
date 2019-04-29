@@ -58,6 +58,12 @@ public class MikuModel {
         }
     }
 
+    public void startAnimation() {
+        if(mikuAnimation != null) {
+            mikuAnimation.startAnimation();
+        }
+    }
+
     public void setFrame(float frame) {
         if(mikuAnimation != null) {
             mikuAnimation.setBoneMotion(frame);

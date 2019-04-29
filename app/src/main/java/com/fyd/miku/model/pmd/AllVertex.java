@@ -39,37 +39,32 @@ public class AllVertex {
     }
 
     public ByteBuffer getAllVertices() {
-        return vertices;
-    }
-
-    public ByteBuffer getPositionBuffer() {
         vertices.position(0);
         return vertices;
     }
 
-    public ByteBuffer getNormalBuffer() {
-        vertices.position(NORMAL_OFFSET);
-        return vertices;
+    public int getPositionByteOffset() {
+        return COORDINATE_OFFSET;
     }
 
-    public ByteBuffer getUVBuffer() {
-        vertices.position(UV_OFFSET);
-        return vertices;
+    public int getNormalByteOffset() {
+        return NORMAL_OFFSET;
     }
 
-    public ByteBuffer getBoneIndexBuffer() {
-        vertices.position(BONE_INDEX_OFFSET);
-        return vertices;
+    public int getUVByteOffset() {
+        return UV_OFFSET;
     }
 
-    public ByteBuffer getBoneWeightAndEdgeFlagBuffer() {
-        vertices.position(BONE_WEIGHT_OFFSET);
-        return vertices;
+    public int getBoneIndexByteOffset() {
+        return BONE_INDEX_OFFSET;
     }
 
-    public ByteBuffer getIndices(int indexOffset) {
-        indices.position(indexOffset * BYTE_SIZE_PER_INDEX);
-        return indices;
+    public int getBoneWeightAndEdgeFlagByteOffset() {
+        return BONE_WEIGHT_OFFSET;
+    }
+
+    public int getIndicesByteOffset(int indexOffset) {
+        return indexOffset * BYTE_SIZE_PER_INDEX;
     }
 
     public ByteBuffer getIndices() {

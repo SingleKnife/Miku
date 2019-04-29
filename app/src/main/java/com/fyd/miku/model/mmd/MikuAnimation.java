@@ -44,9 +44,6 @@ public class MikuAnimation {
     }
 
     public void update() {
-        if(startTime == 0) {
-            startTime = System.currentTimeMillis();
-        }
         prevTime = currentTime;
         currentTime = System.currentTimeMillis() - startTime;
         if(status == STATUS_PLAYING) {
@@ -75,12 +72,15 @@ public class MikuAnimation {
     }
 
     private float getCurrentFrame() {
-//        return currentTime * 30.0f / 1000.0f;
-        return currentFrame ++;
+        return currentTime * 30.0f / 1000.0f;
+//        return currentFrame ++;
     }
 
     void startAnimation() {
         status = STATUS_PLAYING;
+        if(startTime == 0) {
+            startTime = System.currentTimeMillis();
+        }
     }
 
     void pauseAnimation() {

@@ -5,8 +5,12 @@ import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 
-import com.fyd.miku.helper.ShaderHelper;
+import com.fyd.miku.model.render.AxisRender;
 import com.fyd.miku.model.render.MikuRender;
+import com.fyd.miku.model.render.Render;
+
+import java.util.LinkedList;
+import java.util.Queue;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -15,21 +19,20 @@ public class MikuGLRender implements GLSurfaceView.Renderer {
     private float[] projectionMatrix = new float[16];
     private float[] viewMatrix = new float[16];
 
-    MikuRender mikuRender;
-    AxisRender axisRender;
+    private MikuRender mikuRender;
+    private AxisRender axisRender;
 
-    public MikuGLRender(Context context, MikuRender mikuRender) {
+    private final Queue<Runnable> runOnDraw;
+
+    public MikuGLRender(Context context) {
         axisRender = new AxisRender(context);
-        this.mikuRender = mikuRender;
+        runOnDraw = new LinkedList<>();
     }
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         GLES20.glClearColor(1, 1, 1, 1);
-        axisRender.onSurfaceCreate();
-        if(mikuRender != null) {
-            mikuRender.onSurfaceCreate();
-        }
+        axisRender.createOnGlThread();
         GLES20.glEnable(GLES20.GL_DEPTH_TEST);
     }
 
@@ -39,25 +42,50 @@ public class MikuGLRender implements GLSurfaceView.Renderer {
         Matrix.perspectiveM(projectionMatrix, 0, 45, (float)width/(float)height, 1, 1000);
         Matrix.setLookAtM(viewMatrix, 0, 0, 10, 40,
                 0, 7, 0, 0, 1, 0);
-        axisRender.onSurfaceChanged(width, height);
-        if(mikuRender != null) {
-            mikuRender.onSurfaceChanged(width, height);
-        }
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
+        runAll();
+
         axisRender.beginDraw();
         axisRender.updateMatrix(projectionMatrix, viewMatrix);
         axisRender.draw();
-        axisRender.endDraw();
 
         if(mikuRender != null) {
             mikuRender.beginDraw();
             mikuRender.updateMatrix(projectionMatrix, viewMatrix);
             mikuRender.draw();
-            mikuRender.endDraw();
+        }
+    }
+
+    public void setMikuRender(final MikuRender newRender) {
+        runOnGLThread(new Runnable() {
+            @Override
+            public void run() {
+                MikuRender oldRender = mikuRender;
+                if(oldRender != null) {
+                    oldRender.destroy();
+                }
+                newRender.createOnGLThread();
+                mikuRender = newRender;
+            }
+        });
+    }
+
+    private void runAll() {
+        synchronized (runOnDraw) {
+            while (!runOnDraw.isEmpty()) {
+                Runnable runnable = runOnDraw.poll();
+                runnable.run();
+            }
+        }
+    }
+
+    private void runOnGLThread(Runnable runnable) {
+        synchronized (runOnDraw) {
+            runOnDraw.add(runnable);
         }
     }
 }
