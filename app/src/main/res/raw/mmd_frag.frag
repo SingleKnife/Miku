@@ -32,8 +32,7 @@ void main() {
     }
 
     vec3 diffuseColor = uDiffuse.rgb * uLightColor;
-    vec3 color = diffuseColor;
-    color += uAmbient;
+    vec3 color = diffuseColor + uAmbient;
 
     if(uHasToon) {
         vec3 toonColor = texture2D(uToonTexture, vec2(0.5, ln)).rgb;
@@ -47,6 +46,7 @@ void main() {
 
         color += specularColor;
     }
+    color *= 0.78;
 
 	gl_FragColor = vec4(color, alpha);
 }
