@@ -1,55 +1,45 @@
 package com.fyd.miku.model.mmd;
 
 import com.fyd.miku.model.pmd.AllVertex;
-import com.fyd.miku.model.pmd.FaceMorph;
 import com.fyd.miku.model.pmd.IKInfo;
 import com.fyd.miku.model.pmd.Joint;
 import com.fyd.miku.model.pmd.Material;
 import com.fyd.miku.model.pmd.PMDFile;
 import com.fyd.miku.model.pmd.RigidBody;
 import com.fyd.miku.model.vmd.VMDFile;
+import com.fyd.miku.model.vmd.VMDMorph;
 import com.fyd.miku.model.vmd.VMDMotion;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MikuModel {
-    private List<FaceMorph> faceMorph;
     private AllVertex allVertex;
     private List<IKInfo> ikInfos;
     private List<Joint> joints;
     private List<RigidBody> rigidBodies;
     private List<Mesh> meshes;
     private MikuBoneManager boneManager;
+    private MikuFaceMorphManager faceMorphManager;
     private MikuAnimation mikuAnimation;
 
     public MikuModel(PMDFile pmdFile) {
-        this.faceMorph = pmdFile.faceMorphs;
         this.allVertex = pmdFile.allVertex;
         this.ikInfos = pmdFile.ikInfos;
         this.joints = pmdFile.joints;
         this.rigidBodies = pmdFile.rigidBodies;
         boneManager = new MikuBoneManager(pmdFile.bones, pmdFile.ikInfos);
+        faceMorphManager = new MikuFaceMorphManager(pmdFile.faceMorphs, pmdFile.allVertex);
         initMeshes(pmdFile.materials);
     }
 
     public void attachMotion(VMDFile vmdFile) {
-        mikuAnimation = new MikuAnimation(boneManager);
-        for(VMDMotion vmdMotion : vmdFile.getMotions()) {
-            String boneName = vmdMotion.getBoneName();
-            BoneFrameManager.BoneFrame boneFrame = new BoneFrameManager.BoneFrame();
-            int boneIndex = boneManager.findBone(boneName);
-            if(boneIndex == -1) {
-                continue;
-            }
-            boneFrame.frame = vmdMotion.getFrame();
-            boneFrame.boneRotation = vmdMotion.getBoneQuaternion();
-            boneFrame.boneTranslate = vmdMotion.getBoneTranslate();
-            boneFrame.interpolation = BoneFrameManager.BezierParameters.parse(vmdMotion.getInterpolation());
-            mikuAnimation.addBoneFrame(boneIndex, boneFrame);
-        }
+        mikuAnimation = new MikuAnimation(boneManager, faceMorphManager);
+        initBoneFrames(vmdFile.getMotions());
+        initFaceMorphFrames(vmdFile.getMorphs());
+
         mikuAnimation.sortFrame();
-        mikuAnimation.setBoneMotion(0);
+        mikuAnimation.setMotion(0);
     }
 
     public void updateMotion() {
@@ -66,7 +56,7 @@ public class MikuModel {
 
     public void setFrame(float frame) {
         if(mikuAnimation != null) {
-            mikuAnimation.setBoneMotion(frame);
+            mikuAnimation.setMotion(frame);
         }
     }
 
@@ -89,6 +79,36 @@ public class MikuModel {
             Mesh mesh = new Mesh();
             mesh.material = material;
             meshes.add(mesh);
+        }
+    }
+
+    private void initBoneFrames(List<VMDMotion> vmdMotions) {
+        for(VMDMotion vmdMotion : vmdMotions) {
+            String boneName = vmdMotion.getBoneName();
+            int boneIndex = boneManager.findBone(boneName);
+            if(boneIndex == -1) {
+                continue;
+            }
+            BoneFrameManager.BoneFrame boneFrame = new BoneFrameManager.BoneFrame();
+            boneFrame.frame = vmdMotion.getFrame();
+            boneFrame.boneRotation = vmdMotion.getBoneQuaternion();
+            boneFrame.boneTranslate = vmdMotion.getBoneTranslate();
+            boneFrame.interpolation = BoneFrameManager.BezierParameters.parse(vmdMotion.getInterpolation());
+            mikuAnimation.addBoneFrame(boneIndex, boneFrame);
+        }
+    }
+
+    private void initFaceMorphFrames(List<VMDMorph> vmdMorphs) {
+        for(VMDMorph vmdMorph : vmdMorphs) {
+            String morphName = vmdMorph.getMorphName();
+            int morphIndex = faceMorphManager.findMorph(morphName);
+            if(morphIndex == -1) {
+                continue;
+            }
+            MorphFrameManager.MorphFrame morphFrame = new MorphFrameManager.MorphFrame();
+            morphFrame.frame = vmdMorph.getFrame();
+            morphFrame.weight = vmdMorph.getWeight();
+            mikuAnimation.addMorphFrame(morphIndex, morphFrame);
         }
     }
 }

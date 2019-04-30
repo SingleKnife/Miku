@@ -18,12 +18,12 @@ public class MikuBoneManager {
 
     private List<MikuBone> mikuBones;
     private List<IKInfo> ikInfos;
-    private float[] allBoneMatriices;
+    private float[] allBoneMatrices;
 
     MikuBoneManager(List<Bone> bones, List<IKInfo> ikInfos) {
         this.mikuBones = new ArrayList<>(bones.size());
         this.ikInfos = ikInfos;
-        allBoneMatriices = new float[bones.size() * 16];
+        allBoneMatrices = new float[bones.size() * 16];
         for(int i = 0; i < bones.size(); ++i) {
             Bone bone = bones.get(i);
             MikuBone mikuBone = new MikuBone();
@@ -33,7 +33,7 @@ public class MikuBoneManager {
             mikuBone.parentIndex = bone.getParentBoneIndex();
             mikuBone.isKnee = bone.isKnee();
             mikuBones.add(mikuBone);
-            Matrix.setIdentityM(allBoneMatriices, i * 16);
+            Matrix.setIdentityM(allBoneMatrices, i * 16);
         }
 
         for(MikuBone mikuBone : mikuBones) {
@@ -47,7 +47,7 @@ public class MikuBoneManager {
     }
 
     public float[] getAllMatrices() {
-        return allBoneMatriices;
+        return allBoneMatrices;
     }
 
 
@@ -85,7 +85,7 @@ public class MikuBoneManager {
             bone.isUpdated = false;
             Matrix.translateM(bone.globalTransform, 0,
                     -bone.position[0], -bone.position[1], -bone.position[2]);
-            System.arraycopy(bone.globalTransform, 0, allBoneMatriices, i * 16, 16);
+            System.arraycopy(bone.globalTransform, 0, allBoneMatrices, i * 16, 16);
         }
     }
 
@@ -216,17 +216,11 @@ public class MikuBoneManager {
      * @return  骨骼序号
      */
     public int findBone(String boneName) {
-        int result = -1;
         for(int i = 0; i < mikuBones.size(); ++i) {
             if(boneName.equals(mikuBones.get(i).name)){
-                result = i;
-                break;
+                return i;
             }
         }
-        return result;
-    }
-
-    public void printBoneMatrix(int boneIndex) {
-        Log.i(TAG, "bone " + boneIndex + ": " + Arrays.toString(mikuBones.get(boneIndex).globalTransform));
+        return -1;
     }
 }

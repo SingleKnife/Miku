@@ -9,21 +9,32 @@ import java.util.List;
 public class FaceMorph {
     String morphName;       //动画名称
     String morphNameEnglish;
-    int verticesCount;      //动画影响的顶点数量
     int morphType;          //动画类 0.base 1. 眉毛动画，2. 眼睛动画， 3嘴唇动画 4.其他
-    List<Vertex> vertices;
+    List<Vertex> vertices;  //动画影响的顶点
 
     FaceMorph() {
         vertices = new ArrayList<>();
     }
 
+    public String getMorphName() {
+        return morphName;
+    }
 
-    static class Vertex {
-        int vertexIndex;    //顶点索引
-        float[] position;   //最大移动位置
+    public int getVerticesCount() {
+        return vertices.size();
+    }
+
+    public List<Vertex> getRelatedVertices() {
+        return vertices;
+    }
+
+    public static class Vertex {
+        public int vertexIndex;     //顶点索引
+        public float[] maxOffset;   //最大移动位置
+        public float[] basePos;     //未做动画时顶点位置
 
         Vertex() {
-            position = new float[3];
+            maxOffset = new float[3];
         }
     }
 
@@ -31,7 +42,6 @@ public class FaceMorph {
     public String toString() {
         return "FaceMorph{" +
                 "morphName='" + morphName + '\'' +
-                ", verticesCount=" + verticesCount +
                 ", morphType=" + morphType +
                 '}';
     }

@@ -7,7 +7,6 @@ import android.opengl.Matrix;
 
 import com.fyd.miku.model.render.AxisRender;
 import com.fyd.miku.model.render.MikuRender;
-import com.fyd.miku.model.render.Render;
 
 import java.util.LinkedList;
 import java.util.Queue;

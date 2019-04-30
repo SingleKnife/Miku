@@ -93,8 +93,8 @@ public class MainActivity extends AppCompatActivity {
         VMDFile vmdFile = new VMDFile();
         InputStream inputStream;
         try {
-            inputStream = assetManager.open("wavefile_full_miku_v2.vmd");
-//            inputStream = assetManager.open("hou1.vmd");
+//            inputStream = assetManager.open("wavefile_full_miku_v2.vmd");
+            inputStream = assetManager.open("face.vmd");
             vmdFile.parse(inputStream);
             mikuModel.attachMotion(vmdFile);
         } catch (IOException e) {

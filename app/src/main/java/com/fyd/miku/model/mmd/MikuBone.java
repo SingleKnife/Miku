@@ -8,9 +8,6 @@ public class MikuBone {
     int parentIndex;
     boolean isKnee;         //是否是膝盖
 
-    float rotateLowerLimit; //骨骼旋转最小角度
-    float rotateUpperLimit; //骨骼旋转最大角度
-
     float[] position;
     float[] scale;          //骨骼缩放
 

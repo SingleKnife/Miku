@@ -19,6 +19,8 @@ public class AllVertex {
     public static final int BONE_INDEX_COMPONENT_SIZE = 2;  //影响顶点的骨骼序号，有2根骨骼
     public static final int BONE_WEIGHT_AND_EDGE_FLAG_COMPONENT_SIZE = 2;
 
+    public static final int FLOAT_BYTE_SIZE = 4;            //一个float所占字节数
+
     private ByteBuffer vertices;
     private ByteBuffer indices;
 
@@ -70,6 +72,34 @@ public class AllVertex {
     public ByteBuffer getIndices() {
         indices.position(0);
         return indices;
+    }
+
+    /**
+     *  根据顶点索引获取顶点坐标
+     * @param vertexOffset 顶点偏移量
+     */
+    public float[] getPosValue(int vertexOffset) {
+        float[] result = new float[3];
+        vertices.position(BYTE_SIZE_PER_VERTEX * vertexOffset);
+        result[0] = vertices.getFloat();
+        result[1] = vertices.getFloat();
+        result[2] = vertices.getFloat();
+        vertices.position(0);
+
+        return result;
+    }
+
+    /**
+     * 更新定点坐标
+     * @param vertexOffset   顶点偏移量
+     * @param x, y, z        新的顶点值
+     */
+    public void updatePosValue(int vertexOffset, float x, float y, float z) {
+        vertices.position(BYTE_SIZE_PER_VERTEX * vertexOffset);
+        vertices.putFloat(x);   //x
+        vertices.putFloat(y);   //y
+        vertices.putFloat(z);   //z
+        vertices.position(0);
     }
 
 }

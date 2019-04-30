@@ -1,8 +1,5 @@
 package com.fyd.miku.model.mmd;
 
-import android.util.Log;
-
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,24 +8,28 @@ public class MikuAnimation {
     public static final int STATUS_PLAYING = 1;
     public static final int MMD_FPS = 30;       //mmd动画插值fps
 
-    Map<Integer, BoneFrameManager> allBonesFrames;  //<boneIndex, FramesOfBone>
-    MikuBoneManager boneManager;
+    private Map<Integer, BoneFrameManager> allBonesFrames;  //<boneIndex, FramesOfBone>
+    private Map<Integer, MorphFrameManager> allMorphFrames; //<morphIndex, FramesOfMorph>
+    private MikuBoneManager boneManager;
+    private MikuFaceMorphManager morphManager;
 
     int fps = 30;
-    long startTime;
-    long currentTime;
-    long prevTime;
-    int maxFrame;
-    int currentFrame = 0;
+    private long startTime;
+    private long currentTime;
+    private long prevTime;
+    private int maxFrame;
+    private int currentFrame = 0;
 
     int status = STATUS_PAUSE;
 
-    public MikuAnimation(MikuBoneManager boneManager) {
+    MikuAnimation(MikuBoneManager boneManager, MikuFaceMorphManager morphManager) {
         allBonesFrames = new HashMap<>();
+        allMorphFrames = new HashMap<>();
         this.boneManager = boneManager;
+        this.morphManager = morphManager;
     }
 
-    public void addBoneFrame(int boneIndex, BoneFrameManager.BoneFrame boneFrame) {
+    void addBoneFrame(int boneIndex, BoneFrameManager.BoneFrame boneFrame) {
         BoneFrameManager boneFrameManager = allBonesFrames.get(boneIndex);
         if(boneFrameManager == null) {
             boneFrameManager = new BoneFrameManager();
@@ -37,24 +38,38 @@ public class MikuAnimation {
         boneFrameManager.addBoneFrame(boneFrame);
     }
 
-    public void sortFrame() {
+    void addMorphFrame(int morphIndex, MorphFrameManager.MorphFrame morphFrame) {
+        MorphFrameManager morphFrameManager = allMorphFrames.get(morphIndex);
+        if(morphFrameManager == null) {
+            morphFrameManager = new MorphFrameManager();
+            allMorphFrames.put(morphIndex, morphFrameManager);
+        }
+        morphFrameManager.addFrame(morphFrame);
+    }
+
+    void sortFrame() {
         for (BoneFrameManager boneFrames : allBonesFrames.values()) {
             boneFrames.sort();
         }
-    }
-
-    public void update() {
-        prevTime = currentTime;
-        currentTime = System.currentTimeMillis() - startTime;
-        if(status == STATUS_PLAYING) {
-            float currentFrame = getCurrentFrame();
-            Log.i("anim", "currentFrame: " + currentFrame);
-            setBoneMotion(getCurrentFrame());
+        for(MorphFrameManager morphFrames : allMorphFrames.values()) {
+            morphFrames.sort();
         }
     }
 
-    void setBoneMotion(float frame) {
-        Log.i("anim", "setBoneMotion");
+    void update() {
+        prevTime = currentTime;
+        currentTime = System.currentTimeMillis() - startTime;
+        if(status == STATUS_PLAYING) {
+            setMotion(getCurrentFrame());
+        }
+    }
+
+    void setMotion(float frame) {
+        setBoneMotion(frame);
+        setMorphMotion(frame);
+    }
+
+    private void setBoneMotion(float frame) {
         for(int boneIndex = 0; boneIndex < boneManager.getBoneNum(); ++boneIndex) {
             float[] boneRotation = {0f, 0f, 0f, 1f};
             float[] boneTranslate = {0f, 0f, 0f};
@@ -65,15 +80,25 @@ public class MikuAnimation {
                 boneRotation = boneFrame.boneRotation;
                 boneTranslate = boneFrame.boneTranslate;
             }
-            Log.i("anim", "setBoneMotion, " + boneIndex + ", rotation: " + Arrays.toString(boneRotation) + ", boneTranslate: " + Arrays.toString(boneTranslate));
             boneManager.setBoneMotion(boneIndex, boneRotation, boneTranslate);
         }
         boneManager.updateAllBonesMotion();
     }
 
+    private void setMorphMotion(float frame) {
+        for(int morphIndex = 0; morphIndex < morphManager.getMorphNum(); ++morphIndex) {
+            float weight = 0f;
+            MorphFrameManager morphFrames = allMorphFrames.get(morphIndex);
+            if(morphFrames != null) {
+                MorphFrameManager.MorphFrame morphFrame = morphFrames.getFrame(frame);
+                weight = morphFrame.weight;
+            }
+            morphManager.setMorphMotion(morphIndex, weight);
+        }
+    }
+
     private float getCurrentFrame() {
         return currentTime * 30.0f / 1000.0f;
-//        return currentFrame ++;
     }
 
     void startAnimation() {

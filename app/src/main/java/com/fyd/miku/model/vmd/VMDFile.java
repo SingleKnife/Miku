@@ -53,11 +53,11 @@ public class VMDFile {
     }
 
     private void parseMotion() throws IOException {
+        motions = new ArrayList<>();
         int num = vmdStream.readInt();
         if(num <= 0) {
             return;
         }
-        motions = new ArrayList<>();
         for (int i = 0; i < num; i++) {
             VMDMotion motion = new VMDMotion();
             motion.boneName = vmdStream.readSJISString(15);
@@ -71,17 +71,17 @@ public class VMDFile {
     }
 
     private void parseMorph() throws IOException {
+        morphs = new ArrayList<>();
         int num = vmdStream.readInt();
         if(num <= 0) {
             return;
         }
-        morphs = new ArrayList<>();
         for (int i = 0; i < num; i++) {
             VMDMorph morph = new VMDMorph();
             morph.morphName = vmdStream.readSJISString(15);
-            morph.frameIndex = vmdStream.readInt();
-            Log.i("vmd", "morphName: " + morph.morphName + ", index: " + morph.frameIndex);
+            morph.frame = vmdStream.readInt();
             morph.weight = vmdStream.readFloat();
+            Log.i("vmd", "morph: " + morph);
             morphs.add(morph);
         }
         Log.i("fyd", "avaliable: " + vmdStream.available());

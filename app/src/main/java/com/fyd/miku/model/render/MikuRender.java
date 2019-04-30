@@ -46,7 +46,7 @@ public class MikuRender implements Render{
         AllVertex vertexData = mikuModel.getAllVertex();
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vertexBufferId);
         GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, vertexData.getAllVertices().limit(),
-                vertexData.getAllVertices(), GLES20.GL_STATIC_DRAW);
+                vertexData.getAllVertices(), GLES20.GL_DYNAMIC_DRAW);
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
 
         GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, indexBufferId);
@@ -82,6 +82,9 @@ public class MikuRender implements Render{
         model.updateMotion();
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vertexBufferId);
         GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, indexBufferId);
+        AllVertex vertexData = mikuModel.getAllVertex();
+        GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, vertexData.getAllVertices().limit(),
+                vertexData.getAllVertices(), GLES20.GL_DYNAMIC_DRAW);
         renderProgram.bindVertexData(model.getAllVertex());
         renderProgram.bindBoneMatrices(model.getBoneManager().getAllMatrices());
         for(Mesh mesh : model.getMeshes()) {

@@ -5,6 +5,9 @@ import android.util.Log;
 
 import com.fyd.miku.io.ObjectBufferedInputStream;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -28,9 +31,17 @@ public class PMDFile {
     public PMDFile() {
     }
 
+    public boolean parse(File pmdFile){
+        try {
+            InputStream inputStream = new FileInputStream(pmdFile);
+            parse(inputStream);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return baseInfoReadFinish;
+    }
 
-
-    public boolean parse(InputStream inputStream) throws IOException{
+    public boolean parse(InputStream inputStream){
         try{
             pmdStream = new ObjectBufferedInputStream(inputStream, ObjectBufferedInputStream.ByteOrder.LITTLE_ENDIAN);
             parseHeader();
@@ -181,12 +192,12 @@ public class PMDFile {
         for(int i = 0; i < morphNum; ++i) {
             FaceMorph faceMorph = new FaceMorph();
             faceMorph.morphName = pmdStream.readSJISString(20);
-            faceMorph.verticesCount = pmdStream.readInt();
+            int verticesCount = pmdStream.readInt();
             faceMorph.morphType = pmdStream.read();
-            for(int j = 0; j < faceMorph.verticesCount; ++j) {
+            for(int j = 0; j < verticesCount; ++j) {
                 FaceMorph.Vertex vertex = new FaceMorph.Vertex();
                 vertex.vertexIndex = pmdStream.readInt();
-                pmdStream.readFloats(vertex.position);
+                pmdStream.readFloats(vertex.maxOffset);
                 faceMorph.vertices.add(vertex);
             }
             Log.i("mmd", "faceMorph: " + faceMorph);
