@@ -28,13 +28,27 @@ public class FaceMorph {
         return vertices;
     }
 
-    public static class Vertex {
-        public int vertexIndex;     //顶点索引
-        public float[] maxOffset;   //最大移动位置
-        public float[] basePos;     //未做动画时顶点位置
+    public int getMorphType() {
+        return morphType;
+    }
 
-        Vertex() {
-            maxOffset = new float[3];
+    public static class Vertex {
+        /**
+         *  当morphType是base类型当时候，是模型顶点数据中当索引；
+         *  当morphType是另外几种类型当时候，是在base顶点中当索引，
+         *  即在FaceMorph.vertices中当索引
+         */
+        public int vertexIndex;
+        /**
+         *  当morphType是base类型当时候，是模型顶点位置；
+         *  当morphType是另外几种类型当时候，相对顶点位置当最大偏移量，
+         *  计算动画当时候乘以动画计算出来当weight来计算偏移量
+         */
+
+        public float[] posOffset;   //最大移动位置
+
+        public Vertex() {
+            posOffset = new float[3];
         }
     }
 

@@ -42,7 +42,7 @@ public class Bone {
                 ", boneType=" + boneType +
                 ", ikParent=" + ikParent +
                 ", isKnee=" + isKnee +
-                ", maxOffset=" + Arrays.toString(position) +
+                ", posOffset=" + Arrays.toString(position) +
                 '}';
     }
 }

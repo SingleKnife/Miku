@@ -92,13 +92,13 @@ public class AllVertex {
     /**
      * 更新定点坐标
      * @param vertexOffset   顶点偏移量
-     * @param x, y, z        新的顶点值
+     * @param pos           新的顶点值
      */
-    public void updatePosValue(int vertexOffset, float x, float y, float z) {
+    public void updatePosValue(int vertexOffset, float[] pos) {
         vertices.position(BYTE_SIZE_PER_VERTEX * vertexOffset);
-        vertices.putFloat(x);   //x
-        vertices.putFloat(y);   //y
-        vertices.putFloat(z);   //z
+        vertices.putFloat(pos[0]);   //x
+        vertices.putFloat(pos[1]);   //y
+        vertices.putFloat(pos[2]);   //z
         vertices.position(0);
     }
 

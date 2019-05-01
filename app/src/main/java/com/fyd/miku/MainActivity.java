@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
         InputStream inputStream;
         try {
 //            inputStream = assetManager.open("wavefile_full_miku_v2.vmd");
-            inputStream = assetManager.open("face.vmd");
+            inputStream = assetManager.open("motion.vmd");
             vmdFile.parse(inputStream);
             mikuModel.attachMotion(vmdFile);
         } catch (IOException e) {

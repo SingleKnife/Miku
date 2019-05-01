@@ -197,7 +197,7 @@ public class PMDFile {
             for(int j = 0; j < verticesCount; ++j) {
                 FaceMorph.Vertex vertex = new FaceMorph.Vertex();
                 vertex.vertexIndex = pmdStream.readInt();
-                pmdStream.readFloats(vertex.maxOffset);
+                pmdStream.readFloats(vertex.posOffset);
                 faceMorph.vertices.add(vertex);
             }
             Log.i("mmd", "faceMorph: " + faceMorph);

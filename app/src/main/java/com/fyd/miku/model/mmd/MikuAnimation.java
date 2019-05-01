@@ -65,8 +65,8 @@ public class MikuAnimation {
     }
 
     void setMotion(float frame) {
-        setBoneMotion(frame);
         setMorphMotion(frame);
+        setBoneMotion(frame);
     }
 
     private void setBoneMotion(float frame) {
@@ -86,6 +86,7 @@ public class MikuAnimation {
     }
 
     private void setMorphMotion(float frame) {
+        morphManager.resetMorphPos();
         for(int morphIndex = 0; morphIndex < morphManager.getMorphNum(); ++morphIndex) {
             float weight = 0f;
             MorphFrameManager morphFrames = allMorphFrames.get(morphIndex);
@@ -93,8 +94,12 @@ public class MikuAnimation {
                 MorphFrameManager.MorphFrame morphFrame = morphFrames.getFrame(frame);
                 weight = morphFrame.weight;
             }
+            if (weight == 0.0) {
+                continue;
+            }
             morphManager.setMorphMotion(morphIndex, weight);
         }
+        morphManager.updatePos();
     }
 
     private float getCurrentFrame() {
