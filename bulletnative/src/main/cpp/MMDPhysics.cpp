@@ -18,30 +18,23 @@ MMDPhysics::MMDPhysics() {
     solver = new btSequentialImpulseConstraintSolver;
     dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
     dynamicsWorld->setGravity(btVector3(0, -20, 0));
-
-    btCollisionShape *groundShape = new btBoxShape(btVector3(btScalar(10.), btScalar(0.1), btScalar(10)));
-    collisionShapes.push_back(groundShape);
-
-    btVector3 location(btScalar(.0), btScalar(-5), btScalar(.0));
-    btQuaternion rotation(btScalar(0), btScalar(0), btScalar(0), btScalar(1));
-    btRigidBody *rigidBody = createRigidBody(groundShape, btScalar(.0), location, rotation);
-    //add the body to the dynamics world
-    dynamicsWorld->addRigidBody(rigidBody);
 }
 
 MMDPhysics::~MMDPhysics() {
     destroy();
 }
 
-void MMDPhysics::addRigidBody(int shape, float mass, float halfExtents[], float position[], float quaternion[]) {
+void MMDPhysics::addRigidBody(int shape, float mass, int type, float halfExtents[], float position[], float rotation[],
+                              float linearDamping, float angularDamping, float restitution, float friction, int group, int mask) {
     btCollisionShape *collisionShape = createShape(shape, halfExtents);
     collisionShapes.push_back(collisionShape);
 
     btVector3 bodyLocation(position[0], position[1], position[2]);
-    btQuaternion rotation(quaternion[0], quaternion[1], quaternion[2], quaternion[3]);
-    btRigidBody *rigidBody = createRigidBody(collisionShape, mass, bodyLocation, rotation);
+    btQuaternion rotation(rotation[0], rotation[1], rotation[2], rotation[3]);
+    btRigidBody *rigidBody = createRigidBody(collisionShape, type, mass, bodyLocation, rotation,
+            linearDamping, angularDamping, restitution, friction);
     dynamicRigidBodys.push_back(rigidBody);
-    dynamicsWorld->addRigidBody(rigidBody);
+    dynamicsWorld->addRigidBody(rigidBody, group, mask);
 }
 
 void MMDPhysics::addJoint(int rigidBodyAIndex, int rigidBodyBIndex, float *rotation, float *position,
@@ -91,12 +84,16 @@ void MMDPhysics::getRigidBodyTransform(int index, float *result) {
     trans.getOpenGLMatrix(result);
 }
 
-btRigidBody* MMDPhysics::createRigidBody(btCollisionShape *shape, btScalar mass,
-                            btVector3& location, btQuaternion& rotation) {
+btRigidBody* MMDPhysics::createRigidBody(btCollisionShape *shape, int type, btScalar mass,
+                            btVector3& location, btQuaternion& rotation, float linearDamping,
+                            float angularDamping, float restitution, float friction) {
     btTransform transform;
     transform.setIdentity();
     transform.setOrigin(location);
     transform.setRotation(rotation);
+    if(type == 0) {
+        mass = 0;
+    }
     bool isDynamic = (mass != .0);
     btVector3 localInertia(.0, .0, .0);
     if(isDynamic) {
@@ -104,7 +101,15 @@ btRigidBody* MMDPhysics::createRigidBody(btCollisionShape *shape, btScalar mass,
     }
     auto *motionState = new btDefaultMotionState(transform);
     btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, shape, localInertia);
+    rbInfo.m_linearDamping = linearDamping;
+    rbInfo.m_angularDamping = angularDamping;
+    rbInfo.m_restitution = restitution;
+    rbInfo.m_friction = friction;
     auto *body = new btRigidBody(rbInfo);
+    body->setActivationState(DISABLE_DEACTIVATION);
+    if(type == 0) {
+        body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
+    }
 
     return body;
 }

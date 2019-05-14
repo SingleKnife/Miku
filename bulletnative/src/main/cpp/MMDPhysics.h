@@ -16,7 +16,8 @@ public:
     MMDPhysics();
     ~MMDPhysics();
 
-    void addRigidBody(int shape, float mass, float halfExtents[], float position[], float quaternion[]);
+    void addRigidBody(int shape, float mass, int type, float halfExtents[], float position[], float rotation[],
+                      float linearDamping, float angularDamping, float restitution, float friction, int group, int mask);
     void addJoint(int rigidBodyAIndex, int rigidBodyBIndex, float rotation[], float position[],
             float linearLowerLimit[], float linearUpperLimit[],
             float angularLowerLimit[], float angularUpperLimit[]);
@@ -33,7 +34,9 @@ private:
      * @param location      刚体坐标
      * @return
      */
-    btRigidBody* createRigidBody(btCollisionShape* shape, btScalar mass, btVector3& location, btQuaternion& rotation);
+    btRigidBody* createRigidBody(btCollisionShape *shape, int type, btScalar mass,
+                                 btVector3& location, btQuaternion& rotation, float linearDamping,
+                                 float angularDamping, float restitution, float friction);
     btCollisionShape* createShape(int shape, float halfExtents[]);
 
 private:

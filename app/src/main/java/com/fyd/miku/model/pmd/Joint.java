@@ -1,5 +1,7 @@
 package com.fyd.miku.model.pmd;
 
+import java.util.Arrays;
+
 /**
  * 刚体之间的关节
  */
@@ -25,5 +27,22 @@ public class Joint {
         rotationUpperLimit = new float[3];
         posSpringStiffness = new float[3];
         rotationSpringStiffness = new float[3];
+    }
+
+    @Override
+    public String toString() {
+        return "Joint{" +
+                "name='" + name + '\'' +
+                ", firstEffectRigidBody=" + firstEffectRigidBody +
+                ", secondEffectRigidBody=" + secondEffectRigidBody +
+                ", jointPos=" + Arrays.toString(jointPos) +
+                ", jointRotation=" + Arrays.toString(jointRotation) +
+                ", posLowerLimit=" + Arrays.toString(posLowerLimit) +
+                ", posUpperLimit=" + Arrays.toString(posUpperLimit) +
+                ", rotationLowerLimit=" + Arrays.toString(rotationLowerLimit) +
+                ", rotationUpperLimit=" + Arrays.toString(rotationUpperLimit) +
+                ", posSpringStiffness=" + Arrays.toString(posSpringStiffness) +
+                ", rotationSpringStiffness=" + Arrays.toString(rotationSpringStiffness) +
+                '}';
     }
 }

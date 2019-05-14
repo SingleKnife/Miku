@@ -16,20 +16,18 @@ import java.util.List;
 public class MikuModel {
     private AllVertex allVertex;
     private List<IKInfo> ikInfos;
-    private List<Joint> joints;
-    private List<RigidBody> rigidBodies;
     private List<Mesh> meshes;
     private MikuBoneManager boneManager;
     private MikuFaceMorphManager faceMorphManager;
     private MikuAnimation mikuAnimation;
+    private MikuPhysicsManager physicisManager;
 
     public MikuModel(PMDFile pmdFile) {
         this.allVertex = pmdFile.allVertex;
         this.ikInfos = pmdFile.ikInfos;
-        this.joints = pmdFile.joints;
-        this.rigidBodies = pmdFile.rigidBodies;
         boneManager = new MikuBoneManager(pmdFile.bones, pmdFile.ikInfos);
         faceMorphManager = new MikuFaceMorphManager(pmdFile.faceMorphs, pmdFile.allVertex);
+        physicisManager = new MikuPhysicsManager(pmdFile.rigidBodies, pmdFile.joints);
         initMeshes(pmdFile.materials);
     }
 

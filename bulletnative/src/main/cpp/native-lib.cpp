@@ -38,20 +38,6 @@ Java_com_fyd_bullet_Physics_nativeDestroy(JNIEnv *env, jclass type) {
     destroy();
 }
 
-extern "C"
-JNIEXPORT void JNICALL
-Java_com_fyd_bullet_Physics_nativeAddRigidBody(JNIEnv *env, jclass type, jint shape, jfloat mass,
-                                               jfloatArray halfExtends_, jfloatArray position_, jfloatArray quaternion_) {
-    jfloat *halfExtends = env->GetFloatArrayElements(halfExtends_, NULL);
-    jfloat *position = env->GetFloatArrayElements(position_, NULL);
-    jfloat *quaternion = env->GetFloatArrayElements(quaternion_, NULL);
-
-    mmdPhysics->addRigidBody(shape, mass, halfExtends, position, quaternion);
-
-    env->ReleaseFloatArrayElements(halfExtends_, halfExtends, 0);
-    env->ReleaseFloatArrayElements(position_, position, 0);
-    env->ReleaseFloatArrayElements(quaternion_, quaternion, 0);
-}
 
 extern "C"
 JNIEXPORT void JNICALL
@@ -97,4 +83,25 @@ Java_com_fyd_bullet_Physics_nativeGetRigidBodyTransform(JNIEnv *env, jclass type
     mmdPhysics->getRigidBodyTransform(index, result);
 
     env->ReleaseFloatArrayElements(result_, result, 0);
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_fyd_bullet_Physics_nativeAddRigidBody(JNIEnv *env, jclass type_, jint shape, jfloat mass,
+                                               jint type, jfloatArray halfExtents_,
+                                               jfloatArray position_, jfloatArray rotation_,
+                                               jfloat linearDamping, jfloat angularDamping,
+                                               jfloat restitution, jfloat friction, jint group,
+                                               jint mask) {
+    jfloat *halfExtents = env->GetFloatArrayElements(halfExtents_, NULL);
+    jfloat *position = env->GetFloatArrayElements(position_, NULL);
+    jfloat *quaternion = env->GetFloatArrayElements(rotation_, NULL);
+
+    mmdPhysics->addRigidBody(shape, mass, type, halfExtents, position, quaternion, linearDamping, angularDamping,
+            restitution, friction, group, mask);
+
+
+    env->ReleaseFloatArrayElements(halfExtents_, halfExtents, 0);
+    env->ReleaseFloatArrayElements(position_, position, 0);
+    env->ReleaseFloatArrayElements(rotation_, quaternion, 0);
 }
