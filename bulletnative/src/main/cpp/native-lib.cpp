@@ -46,17 +46,24 @@ Java_com_fyd_bullet_Physics_nativeAddJoint(JNIEnv *env, jclass type, jint rigidA
                                            jfloatArray position_, jfloatArray linearLowerLimit_,
                                            jfloatArray linearUpperLimit_,
                                            jfloatArray angularLowerLimit_,
-                                           jfloatArray angularUpperLimit_) {
+                                           jfloatArray angularUpperLimit_,
+                                           jfloatArray posStiffness_,
+                                           jfloatArray rotationStiffness_
+                                           ) {
     jfloat *rotation = env->GetFloatArrayElements(rotation_, NULL);
     jfloat *position = env->GetFloatArrayElements(position_, NULL);
     jfloat *linearLowerLimit = env->GetFloatArrayElements(linearLowerLimit_, NULL);
     jfloat *linearUpperLimit = env->GetFloatArrayElements(linearUpperLimit_, NULL);
     jfloat *angularLowerLimit = env->GetFloatArrayElements(angularLowerLimit_, NULL);
     jfloat *angularUpperLimit = env->GetFloatArrayElements(angularUpperLimit_, NULL);
+    jfloat *posStiffness = env->GetFloatArrayElements(posStiffness_, NULL);
+    jfloat *rotationStiffness = env->GetFloatArrayElements(rotationStiffness_, NULL);
+
 
     // TODO
     mmdPhysics->addJoint(rigidAIndex, rigidBIndex, rotation, position,
-                         linearLowerLimit, linearUpperLimit, angularLowerLimit, angularUpperLimit);
+                         linearLowerLimit, linearUpperLimit, angularLowerLimit, angularUpperLimit,
+                         posStiffness, rotationStiffness);
 
     env->ReleaseFloatArrayElements(rotation_, rotation, 0);
     env->ReleaseFloatArrayElements(position_, position, 0);
@@ -64,6 +71,8 @@ Java_com_fyd_bullet_Physics_nativeAddJoint(JNIEnv *env, jclass type, jint rigidA
     env->ReleaseFloatArrayElements(linearUpperLimit_, linearUpperLimit, 0);
     env->ReleaseFloatArrayElements(angularLowerLimit_, angularLowerLimit, 0);
     env->ReleaseFloatArrayElements(angularUpperLimit_, angularUpperLimit, 0);
+    env->ReleaseFloatArrayElements(posStiffness_, posStiffness, 0);
+    env->ReleaseFloatArrayElements(rotationStiffness_, rotationStiffness, 0);
 }
 
 extern "C"
@@ -104,4 +113,15 @@ Java_com_fyd_bullet_Physics_nativeAddRigidBody(JNIEnv *env, jclass type_, jint s
     env->ReleaseFloatArrayElements(halfExtents_, halfExtents, 0);
     env->ReleaseFloatArrayElements(position_, position, 0);
     env->ReleaseFloatArrayElements(rotation_, quaternion, 0);
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_fyd_bullet_Physics_nativeUpdateProjectionMatrix(JNIEnv *env, jclass type,
+                                                         jfloatArray matrix_) {
+    jfloat *matrix = env->GetFloatArrayElements(matrix_, NULL);
+
+    mmdPhysics->updateViewProjectMatrix(matrix);
+
+    env->ReleaseFloatArrayElements(matrix_, matrix, 0);
 }

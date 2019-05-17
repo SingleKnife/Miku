@@ -32,7 +32,7 @@ public class MikuModel {
     }
 
     public void attachMotion(VMDFile vmdFile) {
-        mikuAnimation = new MikuAnimation(boneManager, faceMorphManager);
+        mikuAnimation = new MikuAnimation(boneManager, faceMorphManager, physicisManager);
         initBoneFrames(vmdFile.getMotions());
         initFaceMorphFrames(vmdFile.getMorphs());
 
@@ -40,6 +40,7 @@ public class MikuModel {
         mikuAnimation.setMotion(0);
     }
 
+    //call on GL thread
     public void updateMotion() {
         if(mikuAnimation != null) {
             mikuAnimation.update();

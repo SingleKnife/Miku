@@ -64,6 +64,7 @@ public class MikuBoneManager {
         localTranslate[1] = bone.position[1] + translate[1];
         localTranslate[2] = bone.position[2] + translate[2];
         if(bone.parentIndex != INVALID_BONE_INDEX) {
+            //转换到父骨骼坐标系中
             MikuBone parent = mikuBones.get(bone.parentIndex);
             localTranslate[0] -= parent.position[0];
             localTranslate[1] -= parent.position[1];
@@ -83,12 +84,16 @@ public class MikuBoneManager {
         for (int i = 0; i < mikuBones.size(); i++) {
             MikuBone bone = mikuBones.get(i);
             bone.isUpdated = false;
+            //计算出来的是在骨骼坐标系中的顶点变换，而顶点坐标是在世界坐标系中的，需要先转换到骨骼坐标系
             Matrix.translateM(bone.globalTransform, 0,
                     -bone.position[0], -bone.position[1], -bone.position[2]);
             System.arraycopy(bone.globalTransform, 0, allBoneMatrices, i * 16, 16);
         }
     }
 
+    /**
+     * 计算骨骼在世界坐标系中的变换
+     */
     private void calculateBoneGlobalMatrix(MikuBone mikuBone) {
         if(mikuBone.isUpdated) {
             return;
@@ -140,6 +145,8 @@ public class MikuBoneManager {
 
                     calculateBoneGlobalMatrix(linkBone);
                     if(linkBone.isKnee) {
+                        //如果是膝盖的话，大腿位置，膝盖位置，和目标点位置三个点确定，
+                        //直接根据勾股定理计算出大腿和小腿之间的夹角
                         if(i == 0) {
                             MikuBone legBone = mikuBones.get(linkBone.parentIndex);
                             calculateBoneGlobalMatrix(legBone);

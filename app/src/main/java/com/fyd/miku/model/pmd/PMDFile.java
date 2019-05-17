@@ -148,6 +148,7 @@ public class PMDFile {
             bone.isKnee = bone.boneName.contains("ひざ");
             pmdStream.readFloats(bone.position);
             bones.add(bone);
+            Log.i("mmd", "bone: " + i + ", " + bone);
         }
     }
 
@@ -264,8 +265,8 @@ public class PMDFile {
             pmdStream.readFloats(rigidBody.shapePos);
             pmdStream.readFloats(rigidBody.shapeRotation);
             rigidBody.mass = pmdStream.readFloat();
-            rigidBody.rigidBodyPosDimmer = pmdStream.readFloat();
-            rigidBody.rigidBodyRotationDimmer = pmdStream.readFloat();
+            rigidBody.linearDimmer = pmdStream.readFloat();
+            rigidBody.angularDamping = pmdStream.readFloat();
             rigidBody.rigidBodyRecoil = pmdStream.readFloat();
             rigidBody.rigidBodyFriction = pmdStream.readFloat();
             rigidBody.rigidBodyType = pmdStream.read();
@@ -283,8 +284,8 @@ public class PMDFile {
         for(int i = 0; i < jointNum; ++i) {
             Joint joint = new Joint();
             joint.name = pmdStream.readSJISString(20);
-            joint.firstEffectRigidBody = pmdStream.readInt();
-            joint.secondEffectRigidBody = pmdStream.readInt();
+            joint.firstRigidBody = pmdStream.readInt();
+            joint.secondRigidBody = pmdStream.readInt();
             pmdStream.readFloats(joint.jointPos);
             pmdStream.readFloats(joint.jointRotation);
             pmdStream.readFloats(joint.posLowerLimit);

@@ -12,6 +12,7 @@ public class MikuAnimation {
     private Map<Integer, MorphFrameManager> allMorphFrames; //<morphIndex, FramesOfMorph>
     private MikuBoneManager boneManager;
     private MikuFaceMorphManager morphManager;
+    private MikuPhysicsManager physicsManager;
 
     int fps = 30;
     private long startTime;
@@ -22,11 +23,12 @@ public class MikuAnimation {
 
     int status = STATUS_PAUSE;
 
-    MikuAnimation(MikuBoneManager boneManager, MikuFaceMorphManager morphManager) {
+    MikuAnimation(MikuBoneManager boneManager, MikuFaceMorphManager morphManager, MikuPhysicsManager physicsManager) {
         allBonesFrames = new HashMap<>();
         allMorphFrames = new HashMap<>();
         this.boneManager = boneManager;
         this.morphManager = morphManager;
+        this.physicsManager = physicsManager;
     }
 
     void addBoneFrame(int boneIndex, BoneFrameManager.BoneFrame boneFrame) {
@@ -57,10 +59,12 @@ public class MikuAnimation {
     }
 
     void update() {
+        float timeStep = prevTime == 0 ? 0 : currentTime - prevTime;
         prevTime = currentTime;
         currentTime = System.currentTimeMillis() - startTime;
         if(status == STATUS_PLAYING) {
             setMotion(getCurrentFrame());
+            physicsManager.stepSimulation(timeStep);
         }
     }
 

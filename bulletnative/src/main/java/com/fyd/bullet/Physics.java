@@ -16,17 +16,28 @@ public class Physics {
         }
     }
 
-    public static void addRigidBody(int shape, float mass, int type, float[] halfExtents, float[] position, float[] rotation,
-                                    float linearDamping, float angularDamping, float restitution, float friction, int group, int mask) {
-        nativeAddRigidBody(shape, mass, type, halfExtents, position, rotation, linearDamping,
-                angularDamping, restitution, friction, group, mask);
+    public static void addRigidBody(int shape, float mass, int type,
+                                    float[] halfExtents, float[] position, float[] rotation,
+                                    float linearDamping, float angularDamping, float restitution,
+                                    float friction, int group, int mask) {
+        nativeAddRigidBody(shape, mass, type,
+                halfExtents, position, rotation,
+                linearDamping, angularDamping, restitution,
+                friction, group, mask);
     }
 
     public static void addJoint(int rigidAIndex, int rigidBIndex, float[] rotation, float[] position,
                                 float[] linearLowerLimit, float[] linearUpperLimit,
-                                float[] angularLowerLimit, float[] angularUpperLimit) {
-        nativeAddJoint(rigidAIndex, rigidBIndex, rotation, position, linearLowerLimit, linearUpperLimit,
-                angularLowerLimit, angularUpperLimit);
+                                float[] angularLowerLimit, float[] angularUpperLimit,
+                                float[] posStiffness, float[] rotationStiffness) {
+        nativeAddJoint(rigidAIndex, rigidBIndex, rotation, position,
+                linearLowerLimit, linearUpperLimit,
+                angularLowerLimit, angularUpperLimit,
+                posStiffness, rotationStiffness);
+    }
+
+    public static void updateProjectionMatrix(float[] matrix) {
+        nativeUpdateProjectionMatrix(matrix);
     }
 
     public static void stepSimulation(float timeStep) {
@@ -51,7 +62,10 @@ public class Physics {
 
     private static native void nativeAddJoint(int rigidAIndex, int rigidBIndex, float[] rotation, float[] position,
                                               float[] linearLowerLimit, float[] linearUpperLimit,
-                                              float[] angularLowerLimit, float[] angularUpperLimit);
+                                              float[] angularLowerLimit, float[] angularUpperLimit,
+                                              float[] posStiffness, float[] rotationStiffness);
+
+    private static native void nativeUpdateProjectionMatrix(float[] matrix);
 
     private static native void nativeStepSimulation(float timeStep);
 

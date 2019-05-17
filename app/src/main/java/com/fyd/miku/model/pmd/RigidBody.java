@@ -21,8 +21,8 @@ public class RigidBody {
     public float[] shapePos;           //x, y, z
     public float[] shapeRotation;      //x, y, z旋转角度
     public float mass;      //刚体重量
-    public float rigidBodyPosDimmer;   //位置阻尼系数
-    public float rigidBodyRotationDimmer;//旋转阻尼系数
+    public float linearDimmer;   //位置阻尼系数
+    public float angularDamping;//旋转阻尼系数
     public float rigidBodyRecoil;          //反冲系数
     public float rigidBodyFriction;        //摩擦系数
     public int rigidBodyType;            //刚体类型 0.静态刚体，不受物理影响，1，动态的，受物理影响
@@ -47,8 +47,8 @@ public class RigidBody {
                 ", shapePos=" + Arrays.toString(shapePos) +
                 ", shapeRotation=" + Arrays.toString(shapeRotation) +
                 ", mass=" + mass +
-                ", rigidBodyPosDimmer=" + rigidBodyPosDimmer +
-                ", rigidBodyRotationDimmer=" + rigidBodyRotationDimmer +
+                ", linearDimmer=" + linearDimmer +
+                ", angularDamping=" + angularDamping +
                 ", rigidBodyRecoil=" + rigidBodyRecoil +
                 ", rigidBodyFriction=" + rigidBodyFriction +
                 ", rigidBodyType=" + rigidBodyType +

@@ -30,8 +30,8 @@ void MMDPhysics::addRigidBody(int shape, float mass, int type, float halfExtents
     collisionShapes.push_back(collisionShape);
 
     btVector3 bodyLocation(position[0], position[1], position[2]);
-    btQuaternion rotation(rotation[0], rotation[1], rotation[2], rotation[3]);
-    btRigidBody *rigidBody = createRigidBody(collisionShape, type, mass, bodyLocation, rotation,
+    btQuaternion rot(rotation[0], rotation[1], rotation[2], rotation[3]);
+    btRigidBody *rigidBody = createRigidBody(collisionShape, type, mass, bodyLocation, rot,
             linearDamping, angularDamping, restitution, friction);
     dynamicRigidBodys.push_back(rigidBody);
     dynamicsWorld->addRigidBody(rigidBody, group, mask);
@@ -39,34 +39,54 @@ void MMDPhysics::addRigidBody(int shape, float mass, int type, float halfExtents
 
 void MMDPhysics::addJoint(int rigidBodyAIndex, int rigidBodyBIndex, float *rotation, float *position,
                           float *linearLowerLimit, float *linearUpperLimit,
-                          float *angularLowerLimit, float *angularUpperLimit) {
+                          float *angularLowerLimit, float *angularUpperLimit,
+                          float *posStiffness, float *rotationStiffness) {
     btRigidBody *rigidBodyA = dynamicRigidBodys[rigidBodyAIndex];
     btRigidBody *rigidBodyB = dynamicRigidBodys[rigidBodyBIndex];
     btTransform frameInA;
     frameInA.setIdentity();
-    frameInA.setOrigin(btVector3(.0, 0, 5));
+    frameInA.setOrigin(btVector3(.0, .0, .0));
 
     btTransform frameInB;
     frameInB.setIdentity();
-    frameInB.setOrigin(btVector3(.0, 0, .0));
+    frameInB.setOrigin(btVector3(.0, .0, .0));
 
     btGeneric6DofSpringConstraint *dof = new btGeneric6DofSpringConstraint(*rigidBodyA, *rigidBodyB,
                                                                         frameInA, frameInB, false);
     dof->enableSpring(0, true);
     dof->setEquilibriumPoint(0, 0);
-//    dof->setStiffness(0, 200);
-//    dof->setStiffness(1, 8);
     dof->setLinearLowerLimit(btVector3(linearLowerLimit[0], linearLowerLimit[1], linearLowerLimit[2]));
     dof->setLinearUpperLimit(btVector3(linearUpperLimit[0], linearUpperLimit[1], linearUpperLimit[2]));
     dof->setAngularLowerLimit(btVector3(angularLowerLimit[0], angularLowerLimit[1], angularLowerLimit[2]));
     dof->setAngularUpperLimit(btVector3(angularUpperLimit[0], angularUpperLimit[1], angularUpperLimit[2]));
+    for(int i = 0; i < 3; ++i) {
+        dof->setStiffness(i, posStiffness[i]);
+    }
+    for(int i = 0; i < 3; ++i) {
+        dof->setStiffness(i + 3, rotationStiffness[i]);
+    }
 
     dynamicsWorld->addConstraint(dof);
 
 }
 
+void MMDPhysics::updateViewProjectMatrix(float *vpMatrix) {
+    if(debugDrawer != nullptr) {
+        debugDrawer->updateProjectionMatrix(vpMatrix);
+    }
+}
+
 void MMDPhysics::stepSimulation(float timeStep) {
     dynamicsWorld->stepSimulation(timeStep);
+    if(debugDraw) {
+        if(debugDrawer == nullptr) {
+            debugDrawer = new BulletDebugDrawer;
+            dynamicsWorld->setDebugDrawer(debugDrawer);
+        }
+        dynamicsWorld->debugDrawWorld();
+
+        debugDrawer->render();
+    }
 }
 
 void MMDPhysics::getRigidBodyTransform(int index, float *result) {
@@ -156,6 +176,10 @@ void MMDPhysics::destroy() {
         btCollisionShape* shape = collisionShapes[j];
         collisionShapes[j] = 0;
         delete shape;
+    }
+
+    if(debugDrawer != nullptr) {
+        delete debugDrawer;
     }
 
     //delete dynamics world

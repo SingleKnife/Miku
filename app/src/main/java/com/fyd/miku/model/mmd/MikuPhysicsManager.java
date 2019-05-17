@@ -17,15 +17,32 @@ public class MikuPhysicsManager {
         this.joints = new ArrayList<>();
         this.rigidBodies.addAll(rigidBodies);
         this.joints.addAll(joints);
+        init();
     }
 
     private void init() {
         Physics.init();
         for(int i = 0; i < rigidBodies.size(); ++i) {
             RigidBody rigidBody = rigidBodies.get(i);
-            Physics.addRigidBody(rigidBody.shape, rigidBody.mass, rigidBody.rigidBodyType
+            Physics.addRigidBody(rigidBody.shape, rigidBody.mass, rigidBody.rigidBodyType,
                     new float[]{rigidBody.shapeWidth, rigidBody.shapeHeight, rigidBody.shapeDepth},
-                    rigidBody.shapePos, rigidBody.shapeRotation, );
+                    rigidBody.shapePos, rigidBody.shapeRotation, rigidBody.linearDimmer, rigidBody.angularDamping,
+                    rigidBody.rigidBodyRecoil, rigidBody.rigidBodyFriction, rigidBody.group, rigidBody.mask);
         }
+
+        for(int i = 0; i < joints.size(); ++i) {
+            Joint joint = joints.get(i);
+            Physics.addJoint(joint.firstRigidBody, joint.secondRigidBody,
+                    joint.jointRotation, joint.jointPos,
+                    joint.posLowerLimit, joint.posUpperLimit,
+                    joint.rotationLowerLimit, joint.rotationUpperLimit,
+                    joint.posSpringStiffness, joint.rotationSpringStiffness
+                    );
+        }
+
+    }
+
+    public void stepSimulation(float timeStep) {
+        Physics.stepSimulation(timeStep);
     }
 }

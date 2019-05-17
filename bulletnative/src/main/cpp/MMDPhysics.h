@@ -10,6 +10,7 @@
 #include <BulletCollision/BroadphaseCollision/btDbvtBroadphase.h>
 #include <BulletDynamics/ConstraintSolver/btGeneric6DofConstraint.h>
 #include "bullet/src/BulletDynamics/Dynamics/btDiscreteDynamicsWorld.h"
+#include "BulletDebugDrawer.h"
 
 class MMDPhysics {
 public:
@@ -17,11 +18,18 @@ public:
     ~MMDPhysics();
 
     void addRigidBody(int shape, float mass, int type, float halfExtents[], float position[], float rotation[],
-                      float linearDamping, float angularDamping, float restitution, float friction, int group, int mask);
+                      float linearDamping, float angularDamping, float restitution, float friction,
+                      int group, int mask);
+
     void addJoint(int rigidBodyAIndex, int rigidBodyBIndex, float rotation[], float position[],
             float linearLowerLimit[], float linearUpperLimit[],
-            float angularLowerLimit[], float angularUpperLimit[]);
+            float angularLowerLimit[], float angularUpperLimit[],
+            float posStiffness[], float rotationStiffness[]);
+
     void stepSimulation(float timeStep);
+
+    void updateViewProjectMatrix(float vpMatrix[]);
+
     void getRigidBodyTransform(int index, float *transform);
 
     void destroy();
@@ -48,6 +56,9 @@ private:
 
     btAlignedObjectArray<btCollisionShape*> collisionShapes;
     btAlignedObjectArray<btRigidBody*> dynamicRigidBodys;
+
+    bool debugDraw = true;
+    BulletDebugDrawer *debugDrawer = nullptr;
 };
 
 
