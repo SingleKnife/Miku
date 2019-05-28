@@ -1,5 +1,7 @@
 package com.fyd.miku.model.pmd;
 
+import android.opengl.Matrix;
+
 import java.util.Arrays;
 
 /**
@@ -27,10 +29,13 @@ public class RigidBody {
     public float rigidBodyFriction;        //摩擦系数
     public int rigidBodyType;            //刚体类型 0.静态刚体，不受物理影响，1，动态的，受物理影响
 
+    public float[] originTransform;
+
 
     public RigidBody() {
         shapePos = new float[3];
         shapeRotation = new float[3];
+        originTransform = new float[16];
     }
 
     @Override
@@ -53,5 +58,15 @@ public class RigidBody {
                 ", rigidBodyFriction=" + rigidBodyFriction +
                 ", rigidBodyType=" + rigidBodyType +
                 '}';
+    }
+
+    public void calcOriginTransform() {
+        Matrix.setRotateEulerM(originTransform, 0,
+                (float)Math.toDegrees(shapeRotation[0]),
+                (float)Math.toDegrees(shapeRotation[1]),
+                (float)Math.toDegrees(-shapeRotation[2]));
+        originTransform[12] = shapePos[0];
+        originTransform[13] = shapePos[1];
+        originTransform[14] = shapePos[2];
     }
 }

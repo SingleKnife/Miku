@@ -8,6 +8,7 @@ import android.opengl.GLUtils;
 import android.opengl.Matrix;
 import android.util.Log;
 
+import com.fyd.bullet.Physics;
 import com.fyd.miku.model.mmd.Mesh;
 import com.fyd.miku.model.mmd.MikuModel;
 import com.fyd.miku.model.pmd.AllVertex;
@@ -22,6 +23,7 @@ public class MikuRender implements Render{
     private int indexBufferId;
 
     private float[] modelMatrix = new float[16];
+    private float[] projectionMatrix = new float[16];
 
     private float[] lightDir = {2f, 2f, 4f};
     private float[] lightColor = {1.0f, 1.0f, 1.0f};
@@ -35,7 +37,7 @@ public class MikuRender implements Render{
         Log.i("MikuRender", "createOnGLThread: " + Thread.currentThread());
         renderProgram = new MikuRenderProgram(context);
         Matrix.setIdentityM(modelMatrix, 0);
-        Matrix.scaleM(modelMatrix, 0, 1, 1, -1f);
+//        Matrix.scaleM(modelMatrix, 0, 1, 1, -1f);
         generateToonTextures();
 
         int[] bufferIds = new int[2];
@@ -57,6 +59,7 @@ public class MikuRender implements Render{
 
     @Override
     public void beginDraw() {
+        mikuModel.updateMotion();
         renderProgram.useProgram();
     }
 
@@ -68,6 +71,8 @@ public class MikuRender implements Render{
 
     @Override
     public void updateMatrix(float[] projectionMatrix, float[] viewMatrix) {
+        Matrix.multiplyMM(this.projectionMatrix, 0, projectionMatrix, 0, viewMatrix, 0);
+        Physics.updateProjectionMatrix(this.projectionMatrix);
         renderProgram.updateMatrix(projectionMatrix, viewMatrix, modelMatrix);
     }
 
@@ -79,7 +84,6 @@ public class MikuRender implements Render{
     }
 
     private void drawModel(MikuModel model) {
-        model.updateMotion();
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vertexBufferId);
         GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, indexBufferId);
         AllVertex vertexData = mikuModel.getAllVertex();

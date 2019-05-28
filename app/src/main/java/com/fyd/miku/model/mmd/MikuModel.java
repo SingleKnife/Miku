@@ -27,7 +27,7 @@ public class MikuModel {
         this.ikInfos = pmdFile.ikInfos;
         boneManager = new MikuBoneManager(pmdFile.bones, pmdFile.ikInfos);
         faceMorphManager = new MikuFaceMorphManager(pmdFile.faceMorphs, pmdFile.allVertex);
-        physicisManager = new MikuPhysicsManager(pmdFile.rigidBodies, pmdFile.joints);
+        physicisManager = new MikuPhysicsManager(boneManager, pmdFile.rigidBodies, pmdFile.joints);
         initMeshes(pmdFile.materials);
     }
 

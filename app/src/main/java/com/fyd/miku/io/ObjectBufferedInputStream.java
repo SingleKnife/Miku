@@ -71,9 +71,16 @@ public class ObjectBufferedInputStream extends BufferedInputStream {
         return Float.intBitsToFloat(readInt());
     }
 
-    public void readFloats(float[] des) throws IOException {
-        for (int i = 0; i < des.length; ++i) {
-            des[i] = readFloat();
+    /**
+     *
+     * @param des   目标数组
+     * @param offset   目标数组偏移量
+     * @param num   读取float数量
+     * @throws IOException
+     */
+    public void readFloats(float[] des, int offset, int num) throws IOException {
+        for (int i = 0; i < num; ++i) {
+            des[i + offset] = readFloat();
         }
     }
 

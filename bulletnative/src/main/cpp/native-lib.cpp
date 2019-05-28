@@ -96,23 +96,32 @@ Java_com_fyd_bullet_Physics_nativeGetRigidBodyTransform(JNIEnv *env, jclass type
 
 extern "C"
 JNIEXPORT void JNICALL
+Java_com_fyd_bullet_Physics_nativeSetRigidBodyTransform(JNIEnv *env, jclass type, jint index,
+                                                        jfloatArray matrix_) {
+    jfloat *matrix = env->GetFloatArrayElements(matrix_, NULL);
+
+    mmdPhysics->setRigidBodyTransform(index, matrix);
+
+    env->ReleaseFloatArrayElements(matrix_, matrix, 0);
+}
+
+extern "C"
+JNIEXPORT void JNICALL
 Java_com_fyd_bullet_Physics_nativeAddRigidBody(JNIEnv *env, jclass type_, jint shape, jfloat mass,
                                                jint type, jfloatArray halfExtents_,
-                                               jfloatArray position_, jfloatArray rotation_,
+                                               jfloatArray transform_,
                                                jfloat linearDamping, jfloat angularDamping,
                                                jfloat restitution, jfloat friction, jint group,
                                                jint mask) {
     jfloat *halfExtents = env->GetFloatArrayElements(halfExtents_, NULL);
-    jfloat *position = env->GetFloatArrayElements(position_, NULL);
-    jfloat *quaternion = env->GetFloatArrayElements(rotation_, NULL);
+    jfloat *transform = env->GetFloatArrayElements(transform_, NULL);
 
-    mmdPhysics->addRigidBody(shape, mass, type, halfExtents, position, quaternion, linearDamping, angularDamping,
+    mmdPhysics->addRigidBody(shape, mass, type, halfExtents, transform, linearDamping, angularDamping,
             restitution, friction, group, mask);
 
 
     env->ReleaseFloatArrayElements(halfExtents_, halfExtents, 0);
-    env->ReleaseFloatArrayElements(position_, position, 0);
-    env->ReleaseFloatArrayElements(rotation_, quaternion, 0);
+    env->ReleaseFloatArrayElements(transform_, transform, 0);
 }
 
 extern "C"
@@ -125,3 +134,4 @@ Java_com_fyd_bullet_Physics_nativeUpdateProjectionMatrix(JNIEnv *env, jclass typ
 
     env->ReleaseFloatArrayElements(matrix_, matrix, 0);
 }
+

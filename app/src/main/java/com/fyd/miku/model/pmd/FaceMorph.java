@@ -1,6 +1,7 @@
 package com.fyd.miku.model.pmd;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -50,13 +51,23 @@ public class FaceMorph {
         public Vertex() {
             posOffset = new float[3];
         }
+
+        @Override
+        public String toString() {
+            return "Vertex{" +
+                    "vertexIndex=" + vertexIndex +
+                    ", posOffset=" + Arrays.toString(posOffset) +
+                    '}';
+        }
     }
 
     @Override
     public String toString() {
         return "FaceMorph{" +
                 "morphName='" + morphName + '\'' +
+                ", morphNameEnglish='" + morphNameEnglish + '\'' +
                 ", morphType=" + morphType +
+                ", vertices=" + vertices +
                 '}';
     }
 }

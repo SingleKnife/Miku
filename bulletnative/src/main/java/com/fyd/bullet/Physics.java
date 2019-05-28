@@ -17,11 +17,11 @@ public class Physics {
     }
 
     public static void addRigidBody(int shape, float mass, int type,
-                                    float[] halfExtents, float[] position, float[] rotation,
+                                    float[] halfExtents, float[] transform,
                                     float linearDamping, float angularDamping, float restitution,
                                     float friction, int group, int mask) {
         nativeAddRigidBody(shape, mass, type,
-                halfExtents, position, rotation,
+                halfExtents, transform,
                 linearDamping, angularDamping, restitution,
                 friction, group, mask);
     }
@@ -48,6 +48,10 @@ public class Physics {
         nativeGetRigidBodyTransform(index, result);
     }
 
+    public static void setRigidBodyTransform(int index, float[] matrix) {
+        nativeSetRigidBodyTransform(index, matrix);
+    }
+
     public static void destroy() {
         if (isInit) {
             nativeDestroy();
@@ -57,7 +61,7 @@ public class Physics {
 
     private static native void nativeCreate();
 
-    private static native void nativeAddRigidBody(int shape, float mass, int type, float[] halfExtents, float[] position, float[] rotation,
+    private static native void nativeAddRigidBody(int shape, float mass, int type, float[] halfExtents, float[] transform,
                                                   float linearDamping, float angularDamping, float restitution, float friction, int group, int mask);
 
     private static native void nativeAddJoint(int rigidAIndex, int rigidBIndex, float[] rotation, float[] position,
@@ -70,6 +74,8 @@ public class Physics {
     private static native void nativeStepSimulation(float timeStep);
 
     private static native void nativeGetRigidBodyTransform(int index, float[] result);
+
+    private static native void nativeSetRigidBodyTransform(int index, float[] matrix);
 
     private static native void nativeDestroy();
 }

@@ -23,6 +23,7 @@ public class AllVertex {
 
     private ByteBuffer vertices;
     private ByteBuffer indices;
+    private ByteBuffer verticesUpdater; //使用单独的buffer来更新数据,避免position冲突
 
     public AllVertex() {
 
@@ -32,6 +33,9 @@ public class AllVertex {
         vertices = ByteBuffer.allocateDirect(bytes.length)
                 .order(ByteOrder.LITTLE_ENDIAN)
                 .put(bytes);
+        vertices.position(0);
+        verticesUpdater = vertices.duplicate()
+                .order(ByteOrder.LITTLE_ENDIAN);
     }
 
     public void setIndices(byte[] bytes) {
@@ -95,11 +99,11 @@ public class AllVertex {
      * @param pos           新的顶点值
      */
     public void updatePosValue(int vertexOffset, float[] pos) {
-        vertices.position(BYTE_SIZE_PER_VERTEX * vertexOffset);
-        vertices.putFloat(pos[0]);   //x
-        vertices.putFloat(pos[1]);   //y
-        vertices.putFloat(pos[2]);   //z
-        vertices.position(0);
+        verticesUpdater.position(BYTE_SIZE_PER_VERTEX * vertexOffset);
+        verticesUpdater.putFloat(pos[0]);   //x
+        verticesUpdater.putFloat(pos[1]);   //y
+        verticesUpdater.putFloat(pos[2]);   //z
+        verticesUpdater.position(0);
     }
 
 }

@@ -230,4 +230,11 @@ public class MikuBoneManager {
         }
         return -1;
     }
+
+    public MikuBone getBone(int index) {
+        if(index == INVALID_BONE_INDEX) {
+            return null;
+        }
+        return mikuBones.get(index);
+    }
 }

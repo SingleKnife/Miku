@@ -24,16 +24,16 @@ MMDPhysics::~MMDPhysics() {
     destroy();
 }
 
-void MMDPhysics::addRigidBody(int shape, float mass, int type, float halfExtents[], float position[], float rotation[],
+void MMDPhysics::addRigidBody(int shape, float mass, int type, float halfExtents[], float transform[],
                               float linearDamping, float angularDamping, float restitution, float friction, int group, int mask) {
     btCollisionShape *collisionShape = createShape(shape, halfExtents);
     collisionShapes.push_back(collisionShape);
 
-    btVector3 bodyLocation(position[0], position[1], position[2]);
-    btQuaternion rot(rotation[0], rotation[1], rotation[2], rotation[3]);
-    btRigidBody *rigidBody = createRigidBody(collisionShape, type, mass, bodyLocation, rot,
+    btTransform tran;
+    tran.setFromOpenGLMatrix(transform);
+    btRigidBody *rigidBody = createRigidBody(collisionShape, type, mass,tran,
             linearDamping, angularDamping, restitution, friction);
-    dynamicRigidBodys.push_back(rigidBody);
+    dynamicRigidBodies.push_back(rigidBody);
     dynamicsWorld->addRigidBody(rigidBody, group, mask);
 }
 
@@ -41,8 +41,8 @@ void MMDPhysics::addJoint(int rigidBodyAIndex, int rigidBodyBIndex, float *rotat
                           float *linearLowerLimit, float *linearUpperLimit,
                           float *angularLowerLimit, float *angularUpperLimit,
                           float *posStiffness, float *rotationStiffness) {
-    btRigidBody *rigidBodyA = dynamicRigidBodys[rigidBodyAIndex];
-    btRigidBody *rigidBodyB = dynamicRigidBodys[rigidBodyBIndex];
+    btRigidBody *rigidBodyA = dynamicRigidBodies[rigidBodyAIndex];
+    btRigidBody *rigidBodyB = dynamicRigidBodies[rigidBodyBIndex];
     btTransform frameInA;
     frameInA.setIdentity();
     frameInA.setOrigin(btVector3(.0, .0, .0));
@@ -70,6 +70,7 @@ void MMDPhysics::addJoint(int rigidBodyAIndex, int rigidBodyBIndex, float *rotat
 
 }
 
+
 void MMDPhysics::updateViewProjectMatrix(float *vpMatrix) {
     if(debugDrawer != nullptr) {
         debugDrawer->updateProjectionMatrix(vpMatrix);
@@ -89,28 +90,30 @@ void MMDPhysics::stepSimulation(float timeStep) {
     }
 }
 
-void MMDPhysics::getRigidBodyTransform(int index, float *result) {
-    if(index >= dynamicRigidBodys.size()) {
+void MMDPhysics::setRigidBodyTransform(int rigidBodyIndex, float *matrix) {
+    if(rigidBodyIndex >= dynamicRigidBodies.size()) {
         return;
     }
-    btCollisionObject *collisionObject = dynamicRigidBodys[index];
-    btRigidBody *rigidBody = btRigidBody::upcast(collisionObject);
-    btTransform trans;
-    if(rigidBody && rigidBody->getMotionState()) {
-        rigidBody->getMotionState()->getWorldTransform(trans);
-    } else {
-        trans = collisionObject->getWorldTransform();
+
+    btRigidBody *rigidBody = dynamicRigidBodies[rigidBodyIndex];
+    btTransform transform;
+    transform.setFromOpenGLMatrix(matrix);
+    rigidBody->getMotionState()->setWorldTransform(transform);
+}
+
+void MMDPhysics::getRigidBodyTransform(int index, float *result) {
+    if(index >= dynamicRigidBodies.size()) {
+        return;
     }
+    btRigidBody *rigidBody = dynamicRigidBodies[index];
+    btTransform trans;
+    rigidBody->getMotionState()->getWorldTransform(trans);
     trans.getOpenGLMatrix(result);
 }
 
 btRigidBody* MMDPhysics::createRigidBody(btCollisionShape *shape, int type, btScalar mass,
-                            btVector3& location, btQuaternion& rotation, float linearDamping,
+                            btTransform& transform, float linearDamping,
                             float angularDamping, float restitution, float friction) {
-    btTransform transform;
-    transform.setIdentity();
-    transform.setOrigin(location);
-    transform.setRotation(rotation);
     if(type == 0) {
         mass = 0;
     }
@@ -128,6 +131,7 @@ btRigidBody* MMDPhysics::createRigidBody(btCollisionShape *shape, int type, btSc
     auto *body = new btRigidBody(rbInfo);
     body->setActivationState(DISABLE_DEACTIVATION);
     if(type == 0) {
+        //type == 0表示不受重力影响的刚体，但是刚体可以移动
         body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
     }
 
@@ -139,10 +143,10 @@ btCollisionShape *MMDPhysics::createShape(int shape, float *halfExtents) {
     btVector3 shapeHalfExtents(halfExtents[0], halfExtents[1], halfExtents[2]);
 
     switch (shape) {
-        case 0: //box
+        case 1: //box
             collisionShape = new btBoxShape(shapeHalfExtents);
             break;
-        case 1: //Sphere:
+        case 0: //Sphere:
             collisionShape = new btSphereShape(halfExtents[0]);
             break;
         case 2: //Capsule:

@@ -62,8 +62,8 @@ public class VMDFile {
             VMDMotion motion = new VMDMotion();
             motion.boneName = vmdStream.readSJISString(15);
             motion.frame = vmdStream.readInt();
-            vmdStream.readFloats(motion.boneTranslate);
-            vmdStream.readFloats(motion.boneQuaternion);
+            vmdStream.readFloats(motion.boneTranslate, 0, 3);
+            vmdStream.readFloats(motion.boneQuaternion, 0, 4);
             vmdStream.read(motion.interpolation, 0, motion.interpolation.length);
             Log.i("vmd", "vmdMotion: " + motion);
             motions.add(motion);

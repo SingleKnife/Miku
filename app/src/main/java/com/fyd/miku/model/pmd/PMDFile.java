@@ -109,10 +109,10 @@ public class PMDFile {
         int vertexIndexOffset = 0;
         for(int i = 0; i < materialsNum; ++i) {
             Material material = new Material();
-            pmdStream.readFloats(material.diffuseColor);
+            pmdStream.readFloats(material.diffuseColor, 0, 4);
             material.specularPower = pmdStream.readFloat();
-            pmdStream.readFloats(material.specularColor);
-            pmdStream.readFloats(material.ambientColor);
+            pmdStream.readFloats(material.specularColor, 0, 3);
+            pmdStream.readFloats(material.ambientColor, 0, 3);
             material.toonIndex = pmdStream.read();
             material.edgeFlag = pmdStream.read();
             material.vertexIndicesNum = pmdStream.readInt();
@@ -127,6 +127,7 @@ public class PMDFile {
 
             material.vertexIndexOffset =vertexIndexOffset;
             vertexIndexOffset += material.vertexIndicesNum;
+            Log.i("mmd", "material: count" + material.vertexIndicesNum + ", offset: " + material.vertexIndicesNum);
             materials.add(material);
         }
     }
@@ -146,7 +147,7 @@ public class PMDFile {
             bone.boneType = pmdStream.read();
             bone.ikParent = pmdStream.readUnsignedShort();
             bone.isKnee = bone.boneName.contains("ひざ");
-            pmdStream.readFloats(bone.position);
+            pmdStream.readFloats(bone.position,0, 3);
             bones.add(bone);
             Log.i("mmd", "bone: " + i + ", " + bone);
         }
@@ -183,16 +184,19 @@ public class PMDFile {
         }
 
         for(int i = 0; i < morphNum; ++i) {
-            FaceMorph faceMorph = new FaceMorph();
-            faceMorph.morphName = pmdStream.readSJISString(20);
+            String morphName = pmdStream.readSJISString(20);
             int verticesCount = pmdStream.readInt();
-            faceMorph.morphType = pmdStream.read();
+            int morphType = pmdStream.read();
+            FaceMorph faceMorph = new FaceMorph();
+            faceMorph.morphName = morphName;
+            faceMorph.morphType = morphType;
             for(int j = 0; j < verticesCount; ++j) {
                 FaceMorph.Vertex vertex = new FaceMorph.Vertex();
                 vertex.vertexIndex = pmdStream.readInt();
-                pmdStream.readFloats(vertex.posOffset);
+                pmdStream.readFloats(vertex.posOffset, 0, 3);
                 faceMorph.vertices.add(vertex);
             }
+            Log.i("mmd", "faceMorph: " + faceMorph);
             faceMorphs.add(faceMorph);
         }
     }
@@ -262,8 +266,8 @@ public class PMDFile {
             rigidBody.shapeWidth = pmdStream.readFloat();
             rigidBody.shapeHeight = pmdStream.readFloat();
             rigidBody.shapeDepth = pmdStream.readFloat();
-            pmdStream.readFloats(rigidBody.shapePos);
-            pmdStream.readFloats(rigidBody.shapeRotation);
+            pmdStream.readFloats(rigidBody.shapePos, 0, 3);
+            pmdStream.readFloats(rigidBody.shapeRotation, 0, 3);
             rigidBody.mass = pmdStream.readFloat();
             rigidBody.linearDimmer = pmdStream.readFloat();
             rigidBody.angularDamping = pmdStream.readFloat();
@@ -286,14 +290,14 @@ public class PMDFile {
             joint.name = pmdStream.readSJISString(20);
             joint.firstRigidBody = pmdStream.readInt();
             joint.secondRigidBody = pmdStream.readInt();
-            pmdStream.readFloats(joint.jointPos);
-            pmdStream.readFloats(joint.jointRotation);
-            pmdStream.readFloats(joint.posLowerLimit);
-            pmdStream.readFloats(joint.posUpperLimit);
-            pmdStream.readFloats(joint.rotationLowerLimit);
-            pmdStream.readFloats(joint.rotationUpperLimit);
-            pmdStream.readFloats(joint.posSpringStiffness);
-            pmdStream.readFloats(joint.rotationSpringStiffness);
+            pmdStream.readFloats(joint.jointPos, 0, 3);
+            pmdStream.readFloats(joint.jointRotation, 0, 3);
+            pmdStream.readFloats(joint.posLowerLimit, 0, 3);
+            pmdStream.readFloats(joint.posUpperLimit, 0, 3);
+            pmdStream.readFloats(joint.rotationLowerLimit, 0, 3);
+            pmdStream.readFloats(joint.rotationUpperLimit, 0, 3);
+            pmdStream.readFloats(joint.posSpringStiffness, 0, 3);
+            pmdStream.readFloats(joint.rotationSpringStiffness, 0, 3);
             joints.add(joint);
             Log.i("mmd", "joint: " + i + ", " + joint);
         }

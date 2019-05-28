@@ -17,7 +17,7 @@ public:
     MMDPhysics();
     ~MMDPhysics();
 
-    void addRigidBody(int shape, float mass, int type, float halfExtents[], float position[], float rotation[],
+    void addRigidBody(int shape, float mass, int type, float halfExtents[], float transform[],
                       float linearDamping, float angularDamping, float restitution, float friction,
                       int group, int mask);
 
@@ -28,6 +28,7 @@ public:
 
     void stepSimulation(float timeStep);
 
+    void setRigidBodyTransform(int rigidBodyIndex, float matrix[]);
     void updateViewProjectMatrix(float vpMatrix[]);
 
     void getRigidBodyTransform(int index, float *transform);
@@ -43,7 +44,7 @@ private:
      * @return
      */
     btRigidBody* createRigidBody(btCollisionShape *shape, int type, btScalar mass,
-                                 btVector3& location, btQuaternion& rotation, float linearDamping,
+                                 btTransform& transform, float linearDamping,
                                  float angularDamping, float restitution, float friction);
     btCollisionShape* createShape(int shape, float halfExtents[]);
 
@@ -55,7 +56,7 @@ private:
     btDiscreteDynamicsWorld* dynamicsWorld;
 
     btAlignedObjectArray<btCollisionShape*> collisionShapes;
-    btAlignedObjectArray<btRigidBody*> dynamicRigidBodys;
+    btAlignedObjectArray<btRigidBody*> dynamicRigidBodies;
 
     bool debugDraw = true;
     BulletDebugDrawer *debugDrawer = nullptr;
