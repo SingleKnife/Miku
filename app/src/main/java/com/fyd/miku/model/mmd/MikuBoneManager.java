@@ -73,6 +73,10 @@ public class MikuBoneManager {
         MatrixHelper.fromRotationTranslationScale(bone.localTransform, 0, rotation, localTranslate, bone.scale);
     }
 
+    void updateBoneGlobalTransform(int boneIndex, float[] matrix) {
+        System.arraycopy(matrix, 0, allBoneMatrices, boneIndex * 16, 16);
+    }
+
 
     void updateAllBonesMotion() {
         for(MikuBone mikuBone : mikuBones) {

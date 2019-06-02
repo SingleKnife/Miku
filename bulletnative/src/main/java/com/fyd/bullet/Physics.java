@@ -26,11 +26,15 @@ public class Physics {
                 friction, group, mask);
     }
 
-    public static void addJoint(int rigidAIndex, int rigidBIndex, float[] rotation, float[] position,
+    public static void addJoint(int rigidAIndex, int rigidBIndex,
+                                float[] rigidAOriginTran, float[] rigidBOriginTran,
+                                float[] rotation, float[] position,
                                 float[] linearLowerLimit, float[] linearUpperLimit,
                                 float[] angularLowerLimit, float[] angularUpperLimit,
                                 float[] posStiffness, float[] rotationStiffness) {
-        nativeAddJoint(rigidAIndex, rigidBIndex, rotation, position,
+        nativeAddJoint(rigidAIndex, rigidBIndex,
+                rigidAOriginTran, rigidBOriginTran,
+                rotation, position,
                 linearLowerLimit, linearUpperLimit,
                 angularLowerLimit, angularUpperLimit,
                 posStiffness, rotationStiffness);
@@ -64,7 +68,9 @@ public class Physics {
     private static native void nativeAddRigidBody(int shape, float mass, int type, float[] halfExtents, float[] transform,
                                                   float linearDamping, float angularDamping, float restitution, float friction, int group, int mask);
 
-    private static native void nativeAddJoint(int rigidAIndex, int rigidBIndex, float[] rotation, float[] position,
+    private static native void nativeAddJoint(int rigidAIndex, int rigidBIndex,
+                                              float[] rigidAOriginTran, float[] rigidBOriginTran,
+                                              float[] rotation, float[] position,
                                               float[] linearLowerLimit, float[] linearUpperLimit,
                                               float[] angularLowerLimit, float[] angularUpperLimit,
                                               float[] posStiffness, float[] rotationStiffness);

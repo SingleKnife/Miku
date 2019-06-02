@@ -17,7 +17,9 @@ MMDPhysics::MMDPhysics() {
     overlappingPairCache = new btDbvtBroadphase();
     solver = new btSequentialImpulseConstraintSolver;
     dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
-    dynamicsWorld->setGravity(btVector3(0, -20, 0));
+    dynamicsWorld->getSolverInfo().m_numIterations = 4;
+
+    dynamicsWorld->setGravity(btVector3(0, -1, 0));
 }
 
 MMDPhysics::~MMDPhysics() {
@@ -37,22 +39,31 @@ void MMDPhysics::addRigidBody(int shape, float mass, int type, float halfExtents
     dynamicsWorld->addRigidBody(rigidBody, group, mask);
 }
 
-void MMDPhysics::addJoint(int rigidBodyAIndex, int rigidBodyBIndex, float *rotation, float *position,
+void MMDPhysics::addJoint(int rigidBodyAIndex, int rigidBodyBIndex,
+                          float rigidBodyAOriginTrans[], float rigidBodyBOriginTrans[],
+                          float *rotation, float *position,
                           float *linearLowerLimit, float *linearUpperLimit,
                           float *angularLowerLimit, float *angularUpperLimit,
                           float *posStiffness, float *rotationStiffness) {
+    btTransform originTranA;
+    originTranA.setFromOpenGLMatrix(rigidBodyAOriginTrans);
+    btTransform originTranB;
+    originTranB.setFromOpenGLMatrix(rigidBodyBOriginTrans);
+
+    btMatrix3x3 jointRotate;
+    jointRotate.setEulerZYX(rotation[0], rotation[1], rotation[2]);
+    btVector3 jointPosition(position[0], position[1], position[2]);
+    btTransform jointTran = btTransform(jointRotate, jointPosition);
+
+    btTransform frameInA = originTranA.inverse() * jointTran;
+    btTransform frameInB = originTranB.inverse() * jointTran;
+
     btRigidBody *rigidBodyA = dynamicRigidBodies[rigidBodyAIndex];
     btRigidBody *rigidBodyB = dynamicRigidBodies[rigidBodyBIndex];
-    btTransform frameInA;
-    frameInA.setIdentity();
-    frameInA.setOrigin(btVector3(.0, .0, .0));
 
-    btTransform frameInB;
-    frameInB.setIdentity();
-    frameInB.setOrigin(btVector3(.0, .0, .0));
 
-    btGeneric6DofSpringConstraint *dof = new btGeneric6DofSpringConstraint(*rigidBodyA, *rigidBodyB,
-                                                                        frameInA, frameInB, false);
+    auto *dof = new btGeneric6DofSpringConstraint(*rigidBodyA, *rigidBodyB,
+            frameInA, frameInB, false);
     dof->enableSpring(0, true);
     dof->setEquilibriumPoint(0, 0);
     dof->setLinearLowerLimit(btVector3(linearLowerLimit[0], linearLowerLimit[1], linearLowerLimit[2]));
@@ -78,7 +89,7 @@ void MMDPhysics::updateViewProjectMatrix(float *vpMatrix) {
 }
 
 void MMDPhysics::stepSimulation(float timeStep) {
-    dynamicsWorld->stepSimulation(timeStep);
+    dynamicsWorld->stepSimulation(timeStep, 0);
     if(debugDraw) {
         if(debugDrawer == nullptr) {
             debugDrawer = new BulletDebugDrawer;

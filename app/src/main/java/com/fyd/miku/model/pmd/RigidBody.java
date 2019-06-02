@@ -27,15 +27,17 @@ public class RigidBody {
     public float angularDamping;//旋转阻尼系数
     public float rigidBodyRecoil;          //反冲系数
     public float rigidBodyFriction;        //摩擦系数
-    public int rigidBodyType;            //刚体类型 0.静态刚体，不受物理影响，1，动态的，受物理影响
+    public int rigidBodyType;            //刚体类型 0.静态刚体，不受物理影响，1，动态的，受物理影响 2,动态当，只有旋转受物理影响，
 
     public float[] originTransform;
+    public float[] originTransformInverse;
 
 
     public RigidBody() {
         shapePos = new float[3];
         shapeRotation = new float[3];
         originTransform = new float[16];
+        originTransformInverse = new float[16];
     }
 
     @Override
@@ -64,9 +66,11 @@ public class RigidBody {
         Matrix.setRotateEulerM(originTransform, 0,
                 (float)Math.toDegrees(shapeRotation[0]),
                 (float)Math.toDegrees(shapeRotation[1]),
-                (float)Math.toDegrees(-shapeRotation[2]));
+                (float)Math.toDegrees(shapeRotation[2]));
         originTransform[12] = shapePos[0];
         originTransform[13] = shapePos[1];
         originTransform[14] = shapePos[2];
+
+        Matrix.invertM(originTransformInverse, 0, originTransform, 0);
     }
 }

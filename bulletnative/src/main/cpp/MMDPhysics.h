@@ -21,7 +21,9 @@ public:
                       float linearDamping, float angularDamping, float restitution, float friction,
                       int group, int mask);
 
-    void addJoint(int rigidBodyAIndex, int rigidBodyBIndex, float rotation[], float position[],
+    void addJoint(int rigidBodyAIndex, int rigidBodyBIndex,
+            float rigidBodyAOriginTrans[], float rigidBodyBOriginTrans[],
+            float rotation[], float position[],
             float linearLowerLimit[], float linearUpperLimit[],
             float angularLowerLimit[], float angularUpperLimit[],
             float posStiffness[], float rotationStiffness[]);
@@ -58,7 +60,7 @@ private:
     btAlignedObjectArray<btCollisionShape*> collisionShapes;
     btAlignedObjectArray<btRigidBody*> dynamicRigidBodies;
 
-    bool debugDraw = true;
+    bool debugDraw = false;
     BulletDebugDrawer *debugDrawer = nullptr;
 };
 

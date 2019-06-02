@@ -45,7 +45,10 @@ public class MikuPhysicsManager {
 
         for(int i = 0; i < joints.size(); ++i) {
             Joint joint = joints.get(i);
+            RigidBody rigidBodyA = rigidBodies.get(joint.firstRigidBody);
+            RigidBody rigidBodyB = rigidBodies.get(joint.secondRigidBody);
             Physics.addJoint(joint.firstRigidBody, joint.secondRigidBody,
+                    rigidBodyA.originTransform, rigidBodyB.originTransform,
                     joint.jointRotation, joint.jointPos,
                     joint.posLowerLimit, joint.posUpperLimit,
                     joint.rotationLowerLimit, joint.rotationUpperLimit,
@@ -60,7 +63,7 @@ public class MikuPhysicsManager {
         for(int i = 0; i < rigidBodies.size(); ++i) {
             RigidBody rigidBody = rigidBodies.get(i);
             MikuBone bone = boneManager.getBone(rigidBody.boneIndex);
-            if(bone != null) {
+            if(bone != null && rigidBody.rigidBodyType == 0) {
                 Matrix.multiplyMM(temp, 0, bone.globalTransform, 0, rigidBody.originTransform, 0);
                 Physics.setRigidBodyTransform(i, temp);
             }
@@ -71,16 +74,22 @@ public class MikuPhysicsManager {
         updateRigidBodyTransform();
 
         Physics.stepSimulation(timeStep);
+        float[] boneTransform = new float[16];
+        float[] temp = new float[16];
 
         for(int i = 0; i < rigidBodies.size(); ++i) {
             RigidBody rigidBody = rigidBodies.get(i);
             if(rigidBody.rigidBodyType == 0) {
                 continue;
             }
-            int boneIndex = rigidBody.boneIndex;
-            float[] temp = new float[16];
+            MikuBone mikuBone = boneManager.getBone(rigidBody.boneIndex);
+            if(mikuBone == null) {
+                continue;
+            }
             Physics.getRigidBodyTransform(i, temp);
             Log.i("MikuPhysicsManager", "rigidBody: " + i + ", " + Arrays.toString(temp));
+            Matrix.multiplyMM(boneTransform, 0, temp, 0, rigidBody.originTransformInverse, 0);
+            boneManager.updateBoneGlobalTransform(rigidBody.boneIndex, boneTransform);
         }
     }
 
