@@ -1,5 +1,7 @@
 package com.fyd.miku.model.mmd;
 
+import android.os.SystemClock;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -59,10 +61,13 @@ public class MikuAnimation {
     }
 
     void update() {
-        float timeStep = prevTime == 0 ? 0 : currentTime - prevTime;
-        prevTime = currentTime;
-        currentTime = System.currentTimeMillis() - startTime;
         if(status == STATUS_PLAYING) {
+            float timeStep = 0;
+            if(currentTime != 0 && prevTime != 0) {
+                timeStep = currentTime - prevTime;
+            }
+            prevTime = currentTime;
+            currentTime = SystemClock.uptimeMillis() - startTime;
             setMotion(getCurrentFrame());
             physicsManager.stepSimulation(timeStep);
         }
@@ -113,7 +118,8 @@ public class MikuAnimation {
     void startAnimation() {
         status = STATUS_PLAYING;
         if(startTime == 0) {
-            startTime = System.currentTimeMillis();
+            startTime = SystemClock.uptimeMillis();
+            prevTime = SystemClock.uptimeMillis();
         }
     }
 

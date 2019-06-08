@@ -1,6 +1,9 @@
 package com.fyd.miku.model.pmd;
 
 import android.opengl.Matrix;
+import android.util.Log;
+
+import com.fyd.miku.helper.MatrixHelper;
 
 import java.util.Arrays;
 
@@ -9,10 +12,10 @@ import java.util.Arrays;
  */
 public class RigidBody {
     public static final int BODY_TYPE_STATIC = 0;               //不受物理引擎影响
-    public static final int BODY_TYPE_DYNAMIC = 0;              //只受物理引擎影响
-    public static final int BODY_TYPE_DYNAMIC_ADJUST_BONE = 0;  //刚体同时受bone和物理引擎
+    public static final int BODY_TYPE_DYNAMIC = 1;              //只受物理引擎影响
+    public static final int BODY_TYPE_DYNAMIC_ROTATE_ONLY = 2;  //刚体同时受bone和物理引擎
 
-    String name;
+    public String name;
     public int boneIndex;
     public int group;
     public int mask;
@@ -62,14 +65,19 @@ public class RigidBody {
                 '}';
     }
 
-    public void calcOriginTransform() {
-        Matrix.setRotateEulerM(originTransform, 0,
+    public void calcOriginTransform(float bonePosX, float bonePosY, float bonePosZ) {
+        MatrixHelper.setRotateEulerZYXM(originTransform, 0,
                 (float)Math.toDegrees(shapeRotation[0]),
                 (float)Math.toDegrees(shapeRotation[1]),
                 (float)Math.toDegrees(shapeRotation[2]));
-        originTransform[12] = shapePos[0];
-        originTransform[13] = shapePos[1];
-        originTransform[14] = shapePos[2];
+        originTransform[12] = shapePos[0] + bonePosX;
+        originTransform[13] = shapePos[1] + bonePosY;
+        originTransform[14] = shapePos[2] + bonePosZ;
+        Log.i("rigidbody", "rotation: " + shapeRotation[0] + ", " + shapeRotation[1] + ", " + shapeRotation[2]);
+        Log.i("rigidbody", "position: " + shapePos[0] + ", " + shapePos[1] + ", " + shapePos[2]);
+        Log.i("rigidbody", "headPos: " + bonePosX + ", " + bonePosY + ", " + bonePosZ);
+        Log.i("rigidbody", "transform: " + Arrays.toString(originTransform));
+        Log.i("rigidbody", "transform: " + Arrays.toString(originTransform));
 
         Matrix.invertM(originTransformInverse, 0, originTransform, 0);
     }

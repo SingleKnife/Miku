@@ -267,8 +267,9 @@ public class PMDFile {
             rigidBody.shapeHeight = pmdStream.readFloat();
             rigidBody.shapeDepth = pmdStream.readFloat();
             pmdStream.readFloats(rigidBody.shapePos, 0, 3);
+//            rigidBody.shapePos[2] *= -1;
             pmdStream.readFloats(rigidBody.shapeRotation, 0, 3);
-            rigidBody.shapeRotation[2] *= -1f;
+//            rigidBody.shapeRotation[2] *= -1f;
             rigidBody.mass = pmdStream.readFloat();
             rigidBody.linearDimmer = pmdStream.readFloat();
             rigidBody.angularDamping = pmdStream.readFloat();
@@ -292,8 +293,9 @@ public class PMDFile {
             joint.firstRigidBody = pmdStream.readInt();
             joint.secondRigidBody = pmdStream.readInt();
             pmdStream.readFloats(joint.jointPos, 0, 3);
+//            joint.jointPos[2] *= -1;
             pmdStream.readFloats(joint.jointRotation, 0, 3);
-            joint.jointRotation[2] *= -1;
+//            joint.jointRotation[2] *= -1;
             pmdStream.readFloats(joint.posLowerLimit, 0, 3);
             pmdStream.readFloats(joint.posUpperLimit, 0, 3);
             pmdStream.readFloats(joint.rotationLowerLimit, 0, 3);

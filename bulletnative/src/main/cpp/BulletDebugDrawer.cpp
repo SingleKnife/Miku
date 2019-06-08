@@ -34,8 +34,8 @@ BulletDebugDrawer::BulletDebugDrawer() {
 }
 
 void BulletDebugDrawer::drawLine(const btVector3 &from, const btVector3 &to, const btVector3 &color) {
-    LOGD("drawLine from %f, %f, %f, , to %f, %f, %f", from.getX(), from.getY(), from.getZ(), to.getX(),to.getY(), to.getZ());
-    LOGD("drawLine color %f, %f, %f", color.getX(), color.getY(), color.getZ());
+//    LOGD("drawLine from %f, %f, %f, , to %f, %f, %f", from.getX(), from.getY(), from.getZ(), to.getX(),to.getY(), to.getZ());
+//    LOGD("drawLine color %f, %f, %f", color.getX(), color.getY(), color.getZ());
     mLineVertices.push_back(btVector3(from));
     mLineVertices.push_back(btVector3(to));
 
@@ -67,7 +67,7 @@ void BulletDebugDrawer::reportErrorWarning(const char *warningString) {
 }
 
 void BulletDebugDrawer::render() {
-    LOGD("render: %d", mLineVertices.size());
+//    LOGD("render: %d", mLineVertices.size());
     float vertices[mLineVertices.size()][6];
     for(int i = 0; i < mLineVertices.size(); ++i) {
         vertices[i][0] = mLineVertices[i].getX();

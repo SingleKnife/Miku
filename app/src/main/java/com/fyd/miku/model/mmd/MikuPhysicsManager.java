@@ -31,19 +31,20 @@ public class MikuPhysicsManager {
             RigidBody rigidBody = rigidBodies.get(i);
             MikuBone bone = boneManager.getBone(rigidBody.boneIndex);
             if(bone != null) {
-                rigidBody.shapePos[0] += bone.position[0];
-                rigidBody.shapePos[1] += bone.position[1];
-                rigidBody.shapePos[2] += bone.position[2];
+                rigidBody.calcOriginTransform(bone.position[0],bone.position[1], bone.position[2]);
+            } else {
+                rigidBody.calcOriginTransform(0, 0, 0);
             }
-            rigidBody.calcOriginTransform();
 
             Physics.addRigidBody(rigidBody.shape, rigidBody.mass, rigidBody.rigidBodyType,
                     new float[]{rigidBody.shapeWidth, rigidBody.shapeHeight, rigidBody.shapeDepth},
                     rigidBody.originTransform, rigidBody.linearDimmer, rigidBody.angularDamping,
                     rigidBody.rigidBodyRecoil, rigidBody.rigidBodyFriction, rigidBody.group, rigidBody.mask);
+            Log.i("MikuPhysicsManager", "rigidBodyName: " + rigidBody.name);
         }
 
         for(int i = 0; i < joints.size(); ++i) {
+//            if(i != 0) continue;
             Joint joint = joints.get(i);
             RigidBody rigidBodyA = rigidBodies.get(joint.firstRigidBody);
             RigidBody rigidBodyB = rigidBodies.get(joint.secondRigidBody);
@@ -63,7 +64,7 @@ public class MikuPhysicsManager {
         for(int i = 0; i < rigidBodies.size(); ++i) {
             RigidBody rigidBody = rigidBodies.get(i);
             MikuBone bone = boneManager.getBone(rigidBody.boneIndex);
-            if(bone != null && rigidBody.rigidBodyType == 0) {
+            if(bone != null && rigidBody.rigidBodyType == RigidBody.BODY_TYPE_STATIC) {
                 Matrix.multiplyMM(temp, 0, bone.globalTransform, 0, rigidBody.originTransform, 0);
                 Physics.setRigidBodyTransform(i, temp);
             }
@@ -73,13 +74,13 @@ public class MikuPhysicsManager {
     public void stepSimulation(float timeStep) {
         updateRigidBodyTransform();
 
-        Physics.stepSimulation(timeStep);
+        Physics.stepSimulation(timeStep / 1000f);
         float[] boneTransform = new float[16];
         float[] temp = new float[16];
 
         for(int i = 0; i < rigidBodies.size(); ++i) {
             RigidBody rigidBody = rigidBodies.get(i);
-            if(rigidBody.rigidBodyType == 0) {
+            if(rigidBody.rigidBodyType == RigidBody.BODY_TYPE_STATIC) {
                 continue;
             }
             MikuBone mikuBone = boneManager.getBone(rigidBody.boneIndex);
@@ -89,6 +90,7 @@ public class MikuPhysicsManager {
             Physics.getRigidBodyTransform(i, temp);
             Log.i("MikuPhysicsManager", "rigidBody: " + i + ", " + Arrays.toString(temp));
             Matrix.multiplyMM(boneTransform, 0, temp, 0, rigidBody.originTransformInverse, 0);
+
             boneManager.updateBoneGlobalTransform(rigidBody.boneIndex, boneTransform);
         }
     }

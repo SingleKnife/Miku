@@ -8,6 +8,7 @@
 #include <BulletCollision/CollisionShapes/btCapsuleShape.h>
 #include <BulletDynamics/ConstraintSolver/btGeneric6DofSpringConstraint.h>
 #include "MMDPhysics.h"
+#include "log.h"
 
 
 
@@ -16,10 +17,12 @@ MMDPhysics::MMDPhysics() {
     dispatcher = new btCollisionDispatcher(collisionConfiguration);
     overlappingPairCache = new btDbvtBroadphase();
     solver = new btSequentialImpulseConstraintSolver;
+
     dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
     dynamicsWorld->getSolverInfo().m_numIterations = 4;
+    dynamicsWorld->getSolverInfo().m_solverMode = SOLVER_SIMD + SOLVER_USE_WARMSTARTING;
 
-    dynamicsWorld->setGravity(btVector3(0, -1, 0));
+    dynamicsWorld->setGravity(btVector3(0, -9.8f * 5, 0));
 }
 
 MMDPhysics::~MMDPhysics() {
@@ -36,7 +39,13 @@ void MMDPhysics::addRigidBody(int shape, float mass, int type, float halfExtents
     btRigidBody *rigidBody = createRigidBody(collisionShape, type, mass,tran,
             linearDamping, angularDamping, restitution, friction);
     dynamicRigidBodies.push_back(rigidBody);
-    dynamicsWorld->addRigidBody(rigidBody, group, mask);
+    dynamicsWorld->addRigidBody(rigidBody, 1 << group, mask);
+}
+
+void printTransform(btTransform& tran) {
+    LOGD("rotation: %f, %f, %f, %f, %f, %f, %f, %f, %f", tran.getBasis()[0], tran.getBasis()[1], tran.getBasis()[2],
+         tran.getBasis()[3], tran.getBasis()[4], tran.getBasis()[5], tran.getBasis()[6], tran.getBasis()[7],tran.getBasis()[8]);
+    LOGD("transform: %f, %f, %f", tran.getOrigin().getX(), tran.getOrigin().getY(), tran.getOrigin().getZ());
 }
 
 void MMDPhysics::addJoint(int rigidBodyAIndex, int rigidBodyBIndex,
@@ -47,34 +56,52 @@ void MMDPhysics::addJoint(int rigidBodyAIndex, int rigidBodyBIndex,
                           float *posStiffness, float *rotationStiffness) {
     btTransform originTranA;
     originTranA.setFromOpenGLMatrix(rigidBodyAOriginTrans);
+//    printTransform(originTranA);
     btTransform originTranB;
     originTranB.setFromOpenGLMatrix(rigidBodyBOriginTrans);
+//    printTransform(originTranB);
 
     btMatrix3x3 jointRotate;
     jointRotate.setEulerZYX(rotation[0], rotation[1], rotation[2]);
     btVector3 jointPosition(position[0], position[1], position[2]);
     btTransform jointTran = btTransform(jointRotate, jointPosition);
+    printTransform(jointTran);
 
     btTransform frameInA = originTranA.inverse() * jointTran;
     btTransform frameInB = originTranB.inverse() * jointTran;
 
+    LOGD("rigidA: %d", rigidBodyAIndex);
+    printTransform(originTranA);
+    printTransform(frameInA);
+    LOGD("rigidB: %d", rigidBodyBIndex);
+    printTransform(originTranB);
+    printTransform(frameInB);
+
+
     btRigidBody *rigidBodyA = dynamicRigidBodies[rigidBodyAIndex];
     btRigidBody *rigidBodyB = dynamicRigidBodies[rigidBodyBIndex];
 
-
     auto *dof = new btGeneric6DofSpringConstraint(*rigidBodyA, *rigidBodyB,
-            frameInA, frameInB, false);
-    dof->enableSpring(0, true);
-    dof->setEquilibriumPoint(0, 0);
+            frameInA, frameInB, true);
     dof->setLinearLowerLimit(btVector3(linearLowerLimit[0], linearLowerLimit[1], linearLowerLimit[2]));
     dof->setLinearUpperLimit(btVector3(linearUpperLimit[0], linearUpperLimit[1], linearUpperLimit[2]));
     dof->setAngularLowerLimit(btVector3(angularLowerLimit[0], angularLowerLimit[1], angularLowerLimit[2]));
     dof->setAngularUpperLimit(btVector3(angularUpperLimit[0], angularUpperLimit[1], angularUpperLimit[2]));
     for(int i = 0; i < 3; ++i) {
-        dof->setStiffness(i, posStiffness[i]);
+        if(posStiffness[i] != 0) {
+            dof->setStiffness(i, posStiffness[i]);
+            dof->enableSpring(i , true);
+        } else {
+            dof->enableSpring(i, false);
+        }
     }
     for(int i = 0; i < 3; ++i) {
-        dof->setStiffness(i + 3, rotationStiffness[i]);
+        if(rotationStiffness[i] != 0) {
+            dof->setStiffness(i + 3, rotationStiffness[i]);
+            dof->enableSpring(i + 3, true);
+        } else {
+            dof->enableSpring(i + 3, false);
+        }
     }
 
     dynamicsWorld->addConstraint(dof);
@@ -89,7 +116,8 @@ void MMDPhysics::updateViewProjectMatrix(float *vpMatrix) {
 }
 
 void MMDPhysics::stepSimulation(float timeStep) {
-    dynamicsWorld->stepSimulation(timeStep, 0);
+    LOGD("timestep %f", timeStep);
+    dynamicsWorld->stepSimulation(timeStep, 2);
     if(debugDraw) {
         if(debugDrawer == nullptr) {
             debugDrawer = new BulletDebugDrawer;
