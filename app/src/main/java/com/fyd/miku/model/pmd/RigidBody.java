@@ -66,6 +66,7 @@ public class RigidBody {
     }
 
     public void calcOriginTransform(float bonePosX, float bonePosY, float bonePosZ) {
+        //mmd是左手坐标系，所以我们用左手坐标系进行旋转
         MatrixHelper.setRotateEulerZYXM(originTransform, 0,
                 (float)Math.toDegrees(shapeRotation[0]),
                 (float)Math.toDegrees(shapeRotation[1]),
@@ -73,11 +74,6 @@ public class RigidBody {
         originTransform[12] = shapePos[0] + bonePosX;
         originTransform[13] = shapePos[1] + bonePosY;
         originTransform[14] = shapePos[2] + bonePosZ;
-        Log.i("rigidbody", "rotation: " + shapeRotation[0] + ", " + shapeRotation[1] + ", " + shapeRotation[2]);
-        Log.i("rigidbody", "position: " + shapePos[0] + ", " + shapePos[1] + ", " + shapePos[2]);
-        Log.i("rigidbody", "headPos: " + bonePosX + ", " + bonePosY + ", " + bonePosZ);
-        Log.i("rigidbody", "transform: " + Arrays.toString(originTransform));
-        Log.i("rigidbody", "transform: " + Arrays.toString(originTransform));
 
         Matrix.invertM(originTransformInverse, 0, originTransform, 0);
     }

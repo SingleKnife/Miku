@@ -39,6 +39,16 @@ void main() {
         color *= toonColor;
     }
 
+    if(uHasTexture) {
+        vec4 textureColor = texture2D(uTextrue, UV);
+        color *= textureColor.rgb;
+//        alpha *= textureColor.a;
+    }
+
+    if(alpha == 0.0) {
+        discard;
+    }
+
     if(uSpecularPower > 0.0) {
         vec3 halfVec = normalize(eyeDir + lightDir);
         vec3 specularColor = uSpecular * uLightColor;

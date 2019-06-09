@@ -16,12 +16,9 @@ public class MikuAnimation {
     private MikuFaceMorphManager morphManager;
     private MikuPhysicsManager physicsManager;
 
-    int fps = 30;
     private long startTime;
     private long currentTime;
     private long prevTime;
-    private int maxFrame;
-    private int currentFrame = 0;
 
     int status = STATUS_PAUSE;
 
@@ -112,7 +109,7 @@ public class MikuAnimation {
     }
 
     private float getCurrentFrame() {
-        return currentTime * 30.0f / 1000.0f;
+        return currentTime * MMD_FPS / 1000.0f;
     }
 
     void startAnimation() {

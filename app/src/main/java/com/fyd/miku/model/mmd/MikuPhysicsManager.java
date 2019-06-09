@@ -1,14 +1,12 @@
 package com.fyd.miku.model.mmd;
 
 import android.opengl.Matrix;
-import android.util.Log;
 
 import com.fyd.bullet.Physics;
 import com.fyd.miku.model.pmd.Joint;
 import com.fyd.miku.model.pmd.RigidBody;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class MikuPhysicsManager {
@@ -40,11 +38,9 @@ public class MikuPhysicsManager {
                     new float[]{rigidBody.shapeWidth, rigidBody.shapeHeight, rigidBody.shapeDepth},
                     rigidBody.originTransform, rigidBody.linearDimmer, rigidBody.angularDamping,
                     rigidBody.rigidBodyRecoil, rigidBody.rigidBodyFriction, rigidBody.group, rigidBody.mask);
-            Log.i("MikuPhysicsManager", "rigidBodyName: " + rigidBody.name);
         }
 
         for(int i = 0; i < joints.size(); ++i) {
-//            if(i != 0) continue;
             Joint joint = joints.get(i);
             RigidBody rigidBodyA = rigidBodies.get(joint.firstRigidBody);
             RigidBody rigidBodyB = rigidBodies.get(joint.secondRigidBody);
@@ -88,7 +84,6 @@ public class MikuPhysicsManager {
                 continue;
             }
             Physics.getRigidBodyTransform(i, temp);
-            Log.i("MikuPhysicsManager", "rigidBody: " + i + ", " + Arrays.toString(temp));
             Matrix.multiplyMM(boneTransform, 0, temp, 0, rigidBody.originTransformInverse, 0);
 
             boneManager.updateBoneGlobalTransform(rigidBody.boneIndex, boneTransform);

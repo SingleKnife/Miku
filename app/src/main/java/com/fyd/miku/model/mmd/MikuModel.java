@@ -2,10 +2,8 @@ package com.fyd.miku.model.mmd;
 
 import com.fyd.miku.model.pmd.AllVertex;
 import com.fyd.miku.model.pmd.IKInfo;
-import com.fyd.miku.model.pmd.Joint;
 import com.fyd.miku.model.pmd.Material;
 import com.fyd.miku.model.pmd.PMDFile;
-import com.fyd.miku.model.pmd.RigidBody;
 import com.fyd.miku.model.vmd.VMDFile;
 import com.fyd.miku.model.vmd.VMDMorph;
 import com.fyd.miku.model.vmd.VMDMotion;

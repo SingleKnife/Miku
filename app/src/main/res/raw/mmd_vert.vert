@@ -30,7 +30,7 @@ void main() {
 
     edgeFlag = aBoneWeightAndEdgeFlag.y;
 	gl_Position = uProjectionMatrix * modelViewMatrix * position;
-    UV = aUV;
+    UV = vec2(aUV.x, aUV.y);
     normal = normalize(mat3(modelViewMatrix) * animNormal);
     fragPos = (modelViewMatrix * position).xyz;
     lightDir = normalize((uViewMatrix * vec4(uLightDir, 0.0)).xyz);

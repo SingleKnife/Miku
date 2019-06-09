@@ -1,9 +1,10 @@
 package com.fyd.miku.model.vmd;
 
-import android.util.Log;
 
 import com.fyd.miku.io.ObjectBufferedInputStream;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -17,11 +18,20 @@ public class VMDFile {
     List<VMDMorph> morphs;
     List<VMDMotion> motions;
 
-
     public VMDFile() {
     }
 
-    public void parse(InputStream inputStream) {
+    public void parse(File pmdFile){
+        try {
+            InputStream inputStream = new FileInputStream(pmdFile);
+            parse(inputStream);
+            inputStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void parse(InputStream inputStream) {
         vmdStream = new ObjectBufferedInputStream(inputStream, ObjectBufferedInputStream.ByteOrder.LITTLE_ENDIAN);
         try {
             parseHeader();
@@ -49,7 +59,6 @@ public class VMDFile {
             throw new IOException("wrong file format");
         }
         header.modelName = vmdStream.readSJISString(20);
-        Log.i("vmd", "modelName: " + header.modelName);
     }
 
     private void parseMotion() throws IOException {
@@ -65,7 +74,6 @@ public class VMDFile {
             vmdStream.readFloats(motion.boneTranslate, 0, 3);
             vmdStream.readFloats(motion.boneQuaternion, 0, 4);
             vmdStream.read(motion.interpolation, 0, motion.interpolation.length);
-            Log.i("vmd", "vmdMotion: " + motion);
             motions.add(motion);
         }
     }
@@ -81,14 +89,11 @@ public class VMDFile {
             morph.morphName = vmdStream.readSJISString(15);
             morph.frame = vmdStream.readInt();
             morph.weight = vmdStream.readFloat();
-            Log.i("vmd", "morph: " + morph);
             morphs.add(morph);
         }
-        Log.i("fyd", "avaliable: " + vmdStream.available());
     }
 
     private void parseCamera() throws IOException {
         int num = vmdStream.readInt();
-        Log.i("vmd", "camera num: " + num);
     }
 }

@@ -56,27 +56,16 @@ void MMDPhysics::addJoint(int rigidBodyAIndex, int rigidBodyBIndex,
                           float *posStiffness, float *rotationStiffness) {
     btTransform originTranA;
     originTranA.setFromOpenGLMatrix(rigidBodyAOriginTrans);
-//    printTransform(originTranA);
     btTransform originTranB;
     originTranB.setFromOpenGLMatrix(rigidBodyBOriginTrans);
-//    printTransform(originTranB);
 
     btMatrix3x3 jointRotate;
     jointRotate.setEulerZYX(rotation[0], rotation[1], rotation[2]);
     btVector3 jointPosition(position[0], position[1], position[2]);
     btTransform jointTran = btTransform(jointRotate, jointPosition);
-    printTransform(jointTran);
 
     btTransform frameInA = originTranA.inverse() * jointTran;
     btTransform frameInB = originTranB.inverse() * jointTran;
-
-    LOGD("rigidA: %d", rigidBodyAIndex);
-    printTransform(originTranA);
-    printTransform(frameInA);
-    LOGD("rigidB: %d", rigidBodyBIndex);
-    printTransform(originTranB);
-    printTransform(frameInB);
-
 
     btRigidBody *rigidBodyA = dynamicRigidBodies[rigidBodyAIndex];
     btRigidBody *rigidBodyB = dynamicRigidBodies[rigidBodyBIndex];
@@ -116,7 +105,6 @@ void MMDPhysics::updateViewProjectMatrix(float *vpMatrix) {
 }
 
 void MMDPhysics::stepSimulation(float timeStep) {
-    LOGD("timestep %f", timeStep);
     dynamicsWorld->stepSimulation(timeStep, 2);
     if(debugDraw) {
         if(debugDrawer == nullptr) {

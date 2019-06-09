@@ -1,26 +1,29 @@
 package com.fyd.miku;
 
-import android.content.res.AssetManager;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
 import com.fyd.miku.model.mmd.MikuModel;
-import com.fyd.miku.model.pmd.PMDFile;
-import com.fyd.miku.model.vmd.VMDFile;
 import com.fyd.miku.model.render.MikuRender;
+import com.fyd.miku.model.vmd.VMDFile;
 
-import java.io.IOException;
-import java.io.InputStream;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
     MikuRender mikuRender;
     MikuModel mikuModel;
     GLSurfaceView surfaceView;
     MikuGLRender mikuGLRender;
-    int frame = 0;
+
+    Disposable loadModelDisposable;
+    Disposable loadMotionDisposable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                parsePmd();
+                loadModel();
             }
         });
         findViewById(R.id.load_anim).setOnClickListener(new View.OnClickListener() {
@@ -53,53 +56,42 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
-        findViewById(R.id.increase).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(mikuModel != null) {
-                    mikuModel.setFrame(++frame);
-                }
-            }
-        });
-
-        findViewById(R.id.decrease).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(mikuModel != null) {
-                    mikuModel.setFrame(--frame);
-                }
-            }
-        });
     }
 
-    private void parsePmd() {
-        AssetManager assetManager = getAssets();
-        try {
-            PMDFile pmdParser = new PMDFile();
-            InputStream inputStream = assetManager.open("Miku_Hatsune_Ver2.pmd");
-            pmdParser.parse(inputStream);
-            mikuModel = new MikuModel(pmdParser);
-            mikuRender = new MikuRender(this, mikuModel);
-            mikuGLRender.setMikuRender(mikuRender);
-            inputStream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    private void loadModel() {
+        loadModelDisposable = DefaultModelManager.initAndLoadDefaultModel(this)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<MikuModel>() {
+                    @Override
+                    public void accept(MikuModel mikuModel) {
+                        MainActivity.this.mikuModel = mikuModel;
+                        mikuRender = new MikuRender(MainActivity.this, mikuModel);
+                        mikuGLRender.setMikuRender(mikuRender);
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable){
+                        Log.e("fyd", "load model failed");
+                    }
+                });
     }
 
     private void loadAnimation() {
-        AssetManager assetManager = getAssets();
-        VMDFile vmdFile = new VMDFile();
-        InputStream inputStream;
-        try {
-//            inputStream = assetManager.open("wavefile_full_miku_v2.vmd");
-            inputStream = assetManager.open("motion.vmd");
-            vmdFile.parse(inputStream);
-            mikuModel.attachMotion(vmdFile);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        loadMotionDisposable = DefaultModelManager.initAndLoadDefaultMotion(this)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<VMDFile>() {
+                    @Override
+                    public void accept(VMDFile vmdFile) {
+                        mikuModel.attachMotion(vmdFile);
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) {
+                        Log.e("fyd", "load motion failed");
+                    }
+                });
 
     }
 
@@ -117,6 +109,13 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        if(loadModelDisposable != null && !loadModelDisposable.isDisposed()) {
+            loadModelDisposable.dispose();
+        }
+
+        if(loadMotionDisposable != null && !loadMotionDisposable.isDisposed()) {
+            loadMotionDisposable.dispose();
+        }
         super.onDestroy();
     }
 }

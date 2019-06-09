@@ -197,7 +197,7 @@ public class MatrixHelper {
 
 
     /**
-     * Converts Euler angles to a rotation matrix.
+     * Converts Euler angles to a rotation matrix, on left hand coordinate system
      *
      * @param rm returns the result
      * @param rmOffset index into rm where the result matrix starts

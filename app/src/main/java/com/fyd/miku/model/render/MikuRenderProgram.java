@@ -77,8 +77,8 @@ public class MikuRenderProgram {
     public void bindVertexData(AllVertex allVertex) {
         GLES20.glVertexAttribPointer(aPositionLocation, AllVertex.VERTEX_COMPONENT_SIZE,
                 GLES20.GL_FLOAT, false, AllVertex.BYTE_SIZE_PER_VERTEX, allVertex.getPositionByteOffset());
-//        GLES20.glVertexAttribPointer(aUVLocation, AllVertex.UV_COMPONENT_SIZE,
-//                GLES20.GL_FLOAT, false, AllVertex.BYTE_SIZE_PER_VERTEX, allVertex.getUVBuffer());
+        GLES20.glVertexAttribPointer(aUVLocation, AllVertex.UV_COMPONENT_SIZE,
+                GLES20.GL_FLOAT, false, AllVertex.BYTE_SIZE_PER_VERTEX, allVertex.getUVByteOffset());
         GLES20.glVertexAttribPointer(aNormalLocation, AllVertex.NORMAL_COMPONENT_SIZE,
                 GLES20.GL_FLOAT, false, AllVertex.BYTE_SIZE_PER_VERTEX, allVertex.getNormalByteOffset());
         GLES20.glVertexAttribPointer(aBoneIndicesLocation, AllVertex.BONE_INDEX_COMPONENT_SIZE,
@@ -86,7 +86,7 @@ public class MikuRenderProgram {
         GLES20.glVertexAttribPointer(aBoneWeightAndEdgeFlagLocation, AllVertex.BONE_WEIGHT_AND_EDGE_FLAG_COMPONENT_SIZE,
                 GLES20.GL_UNSIGNED_BYTE, false, AllVertex.BYTE_SIZE_PER_VERTEX, allVertex.getBoneWeightAndEdgeFlagByteOffset());
         GLES20.glEnableVertexAttribArray(aPositionLocation);
-//        GLES20.glEnableVertexAttribArray(aUVLocation);
+        GLES20.glEnableVertexAttribArray(aUVLocation);
         GLES20.glEnableVertexAttribArray(aNormalLocation);
         GLES20.glEnableVertexAttribArray(aBoneIndicesLocation);
         GLES20.glEnableVertexAttribArray(aBoneWeightAndEdgeFlagLocation);
@@ -116,7 +116,18 @@ public class MikuRenderProgram {
 
     void setToonTexture(boolean hasToon, int textureId) {
         GLES20.glUniform1i(uHasToonLocation, hasToon ? 1 : 0);
+        GLES20.glUniform1f(uToonTextureLocation, 0);
         if(hasToon) {
+            GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
+        }
+    }
+
+    void setTexture(boolean hasTexture, int textureId) {
+        GLES20.glUniform1f(uHasTextureLocation, hasTexture ? 1 : 0);
+        GLES20.glUniform1f(uTextureLocation, 1);
+        if(hasTexture) {
+            GLES20.glActiveTexture(GLES20.GL_TEXTURE1);
             GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
         }
     }
@@ -134,7 +145,7 @@ public class MikuRenderProgram {
 
      void endDraw() {
         GLES20.glDisableVertexAttribArray(aPositionLocation);
-//        GLES20.glEnableVertexAttribArray(aUVLocation);
+        GLES20.glEnableVertexAttribArray(aUVLocation);
         GLES20.glDisableVertexAttribArray(aNormalLocation);
         GLES20.glDisableVertexAttribArray(aBoneIndicesLocation);
         GLES20.glDisableVertexAttribArray(aBoneWeightAndEdgeFlagLocation);

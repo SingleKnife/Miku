@@ -14,11 +14,17 @@ import com.fyd.miku.model.mmd.MikuModel;
 import com.fyd.miku.model.pmd.AllVertex;
 import com.fyd.miku.model.pmd.Material;
 
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+
 public class MikuRender implements Render{
     private MikuModel mikuModel;
     private MikuRenderProgram renderProgram;
     private Context context;
     private int[] toonTextures = new int[10];
+    private Map<String, Integer> textures = new HashMap<>();
+
     private int vertexBufferId;
     private int indexBufferId;
 
@@ -109,6 +115,20 @@ public class MikuRender implements Render{
         int toonTextureId = hasToonTexture ? toonTextures[material.getToonIndex()] : -1;
         renderProgram.setToonTexture(hasToonTexture, toonTextureId);
 
+        boolean hasTexture = material.hasTexture();
+        if(hasTexture) {
+            Integer textureId = textures.get(material.getTextureName());
+            if(textureId == null) {
+                textureId = generateTexture(material.getTextureName());
+                if(textureId > 0) {
+                    textures.put(material.getTextureName(), textureId);
+                }
+            }
+            if(textureId > 0) {
+                renderProgram.setTexture(true, textureId);
+            }
+        }
+
         int indexByteOffset = model.getAllVertex().getIndicesByteOffset(mesh.getIndexOffset());
         renderProgram.draw(indexByteOffset, mesh.getIndexCount());
     }
@@ -128,5 +148,27 @@ public class MikuRender implements Render{
         }
     }
 
+    private int generateTexture(String textureName) {
+        File file = new File(textureName);
+        if(!file.exists()) {
+            Log.i("fyd", "generateTexture: " + textureName + " not exist");
+            return -1;
+        }
 
+        int[] texture = new int[1];
+        GLES20.glGenTextures(1 , texture, 0);
+
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture[0]);
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR_MIPMAP_LINEAR);
+
+        Bitmap textureBitmap = BitmapFactory.decodeFile(textureName);
+        GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, textureBitmap, 0);
+        GLES20.glGenerateMipmap(texture[0]);
+        textureBitmap.recycle();
+
+        return texture[0];
+    }
 }

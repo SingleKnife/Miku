@@ -1,5 +1,7 @@
 package com.fyd.miku.model.pmd;
 
+import android.text.TextUtils;
+
 import com.fyd.miku.R;
 
 public class Material {
@@ -14,16 +16,16 @@ public class Material {
     };
 
     float[] diffuseColor;   //漫反射颜色 rgba
-    float specularPower;        //材质光泽度
+    float specularPower;    //材质光泽度
     float[] specularColor;  //镜面反射颜色 rgb
     float[] ambientColor;   //环境光颜色 rgb
-    int toonIndex;            //toon纹理序号0-9，255表示没有纹理
+    int toonIndex;          //toon纹理序号0-9，255表示没有纹理
     int edgeFlag;           //是否绘制材质边缘
-    int vertexIndicesNum;         //顶点索引数量
+    int vertexIndicesNum;   //顶点索引数量
     String textureName;     //纹理名称，如果有球面贴图(sphere map)的话， 纹理文件和球面贴图文件用*号分开，eg "tex0.bmp*sphere01.spa"
     String sphereMapName;   //球面贴图文件
 
-    int vertexIndexOffset;        //顶点索引在所有顶点中的偏移量
+    int vertexIndexOffset;  //顶点索引在所有顶点中的偏移量
 
     Material() {
         diffuseColor = new float[4];
@@ -76,5 +78,7 @@ public class Material {
         return toonIndex != 255;
     }
 
-
+    public boolean hasTexture() {
+        return !TextUtils.isEmpty(textureName);
+    }
 }
