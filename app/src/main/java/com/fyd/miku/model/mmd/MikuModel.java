@@ -1,5 +1,7 @@
 package com.fyd.miku.model.mmd;
 
+import android.util.Log;
+
 import com.fyd.miku.model.pmd.AllVertex;
 import com.fyd.miku.model.pmd.IKInfo;
 import com.fyd.miku.model.pmd.Material;
@@ -8,13 +10,14 @@ import com.fyd.miku.model.vmd.VMDFile;
 import com.fyd.miku.model.vmd.VMDMorph;
 import com.fyd.miku.model.vmd.VMDMotion;
 
-import java.util.ArrayList;
+import java.nio.ByteBuffer;
+import java.util.HashMap;
 import java.util.List;
 
 public class MikuModel {
     private AllVertex allVertex;
     private List<IKInfo> ikInfos;
-    private List<Mesh> meshes;
+    private List<Material> materials;
     private MikuBoneManager boneManager;
     private MikuFaceMorphManager faceMorphManager;
     private MikuAnimation mikuAnimation;
@@ -23,10 +26,11 @@ public class MikuModel {
     public MikuModel(PMDFile pmdFile) {
         this.allVertex = pmdFile.allVertex;
         this.ikInfos = pmdFile.ikInfos;
+        this.materials = pmdFile.materials;
         boneManager = new MikuBoneManager(pmdFile.bones, pmdFile.ikInfos);
         faceMorphManager = new MikuFaceMorphManager(pmdFile.faceMorphs, pmdFile.allVertex);
         physicisManager = new MikuPhysicsManager(boneManager, pmdFile.rigidBodies, pmdFile.joints);
-        initMeshes(pmdFile.materials);
+        reconstructMaterials(pmdFile.materials);
     }
 
     public void attachMotion(VMDFile vmdFile) {
@@ -62,22 +66,22 @@ public class MikuModel {
     }
 
 
-    public List<Mesh> getMeshes() {
-        return meshes;
+    public List<Material> getMaterials() {
+        return materials;
     }
 
     public MikuBoneManager getBoneManager() {
         return boneManager;
     }
 
-    private void initMeshes(List<Material> materials) {
+    /*private void reconstructMaterials(List<Material> materials) {
         meshes = new ArrayList<>();
         for(Material material : materials) {
             Mesh mesh = new Mesh();
             mesh.material = material;
             meshes.add(mesh);
         }
-    }
+    }*/
 
     private void initBoneFrames(List<VMDMotion> vmdMotions) {
         for(VMDMotion vmdMotion : vmdMotions) {
@@ -106,6 +110,66 @@ public class MikuModel {
             morphFrame.frame = vmdMorph.getFrame();
             morphFrame.weight = vmdMorph.getWeight();
             mikuAnimation.addMorphFrame(morphIndex, morphFrame);
+        }
+    }
+
+    private void reconstructMaterials(List<Material> materials) {
+        for(int m = 0; m < materials.size(); ++m) {
+            Material material = materials.get(m);
+            Log.i("mmd", "material: " +  m);
+            ByteBuffer indicesBuffer = allVertex.getIndices();
+            ByteBuffer verticesBuffer = allVertex.getAllVertices();
+            indicesBuffer.position(material.getVertexIndexOffset() * AllVertex.BYTE_SIZE_PER_INDEX);
+
+            HashMap<Short, Short> boneMap = new HashMap<>(); //<boneIndexOfAll, boneIndexOfMesh>
+            short iterator = 0;
+
+            for(int i = 0; i < material.getVertexIndicesNum(); i += 3) {
+                //映射mesh中的骨骼和所有骨骼中的关系，并更新顶点中骨骼数据，这样做是为了以mesh为绘制单元，
+                //减少每次传到shader里的骨骼数量， 三个顶点一组组成三角形
+
+                for(int j = 0; j < 3; j++) {
+                    int vertexIndex = indicesBuffer.getShort();
+                    int boneInfoPos = vertexIndex  * AllVertex.BYTE_SIZE_PER_VERTEX
+                            + AllVertex.BONE_INDEX_OFFSET ;
+                    verticesBuffer.position(boneInfoPos);
+                    short firstBoneIndexOfAll = verticesBuffer.getShort();
+                    Short boneIndexOfMesh = boneMap.get(firstBoneIndexOfAll);
+                    if(boneIndexOfMesh == null) {
+                        boneMap.put(firstBoneIndexOfAll, iterator);
+                        material.addBone(firstBoneIndexOfAll);
+                        boneIndexOfMesh = iterator;
+                        iterator++;
+                    }
+                    verticesBuffer.position(boneInfoPos);
+                    verticesBuffer.putShort(boneIndexOfMesh);
+
+                    short secondBoneIndexOfAll = verticesBuffer.getShort();
+                    boneIndexOfMesh = boneMap.get(secondBoneIndexOfAll);
+                    if(boneIndexOfMesh == null) {
+                        boneMap.put(secondBoneIndexOfAll, iterator);
+                        material.addBone(secondBoneIndexOfAll);
+                        boneIndexOfMesh = iterator;
+                        iterator++;
+                    }
+                    verticesBuffer.position(boneInfoPos + 2);
+                    verticesBuffer.putShort(boneIndexOfMesh);
+                }
+                if(material.getRelativeBoneSize() > Material.DESIRED_BONE_SIZE) {
+
+                    //超过最大骨骼限制，创建一个新的material
+                    Material newMaterial = material.clone();
+                    newMaterial.setVertexIndexOffset(material.getVertexIndexOffset() + i + 3);
+                    newMaterial.setVertexIndicesNum(material.getVertexIndicesNum() - i - 3);
+
+                    materials.add(newMaterial);
+
+                    material.setVertexIndicesNum(i + 3);
+                    break;
+                }
+
+            }
+            Log.i("mmd", "bone size: " + material.getBoneIndexMapping().size());
         }
     }
 }

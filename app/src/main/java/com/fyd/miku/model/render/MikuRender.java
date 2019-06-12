@@ -9,7 +9,6 @@ import android.opengl.Matrix;
 import android.util.Log;
 
 import com.fyd.bullet.Physics;
-import com.fyd.miku.model.mmd.Mesh;
 import com.fyd.miku.model.mmd.MikuModel;
 import com.fyd.miku.model.pmd.AllVertex;
 import com.fyd.miku.model.pmd.Material;
@@ -33,6 +32,8 @@ public class MikuRender implements Render{
 
     private float[] lightDir = {2f, 2f, 4f};
     private float[] lightColor = {1.0f, 1.0f, 1.0f};
+
+    private float[] boneMatrices = new float[Material.MAX_BONE_SIZE * 16];
 
     public MikuRender(Context context, MikuModel mikuModel) {
         this.context = context;
@@ -96,17 +97,16 @@ public class MikuRender implements Render{
         GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, vertexData.getAllVertices().limit(),
                 vertexData.getAllVertices(), GLES20.GL_DYNAMIC_DRAW);
         renderProgram.bindVertexData(model.getAllVertex());
-        renderProgram.bindBoneMatrices(model.getBoneManager().getAllMatrices());
-        for(Mesh mesh : model.getMeshes()) {
-            drawMesh(model, mesh);
+//        GLES20.glEnable(GLES20.GL_BLEND);
+        for(Material material : model.getMaterials()) {
+            drawMaterial(model, material);
         }
         renderProgram.endDraw();
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
         GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, 0);
     }
 
-    private void drawMesh(MikuModel model, Mesh mesh) {
-        Material material = mesh.getMaterial();
+    private void drawMaterial(MikuModel model, Material material) {
         renderProgram.setAmbient(material.getAmbientColor());
         renderProgram.setDiffuse(material.getDiffuseColor());
         renderProgram.setSpecular(material.getSpecularColor(), material.getSpecularPower());
@@ -114,6 +114,14 @@ public class MikuRender implements Render{
         boolean hasToonTexture = material.hasToonTexture();
         int toonTextureId = hasToonTexture ? toonTextures[material.getToonIndex()] : -1;
         renderProgram.setToonTexture(hasToonTexture, toonTextureId);
+
+        for(short i = 0; i < material.getBoneIndexMapping().size(); ++i) {
+            short boneIndexOfAll = material.getBoneIndexMapping().get(i);
+            System.arraycopy(model.getBoneManager().getAllMatrices(), boneIndexOfAll * 16,
+                    boneMatrices, i * 16, 16);
+        }
+        renderProgram.bindBoneMatrices(boneMatrices);
+
 
         boolean hasTexture = material.hasTexture();
         if(hasTexture) {
@@ -127,10 +135,12 @@ public class MikuRender implements Render{
             if(textureId > 0) {
                 renderProgram.setTexture(true, textureId);
             }
+        } else {
+            renderProgram.setTexture(false, -1);
         }
 
-        int indexByteOffset = model.getAllVertex().getIndicesByteOffset(mesh.getIndexOffset());
-        renderProgram.draw(indexByteOffset, mesh.getIndexCount());
+        int indexByteOffset = model.getAllVertex().getIndicesByteOffset(material.getVertexIndexOffset());
+        renderProgram.draw(indexByteOffset, material.getVertexIndicesNum());
     }
 
     private void generateToonTextures() {

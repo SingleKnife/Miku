@@ -7,6 +7,7 @@ import com.fyd.miku.R;
 import com.fyd.miku.helper.ResourceHelper;
 import com.fyd.miku.helper.ShaderHelper;
 import com.fyd.miku.model.pmd.AllVertex;
+import com.fyd.miku.model.pmd.Material;
 
 import java.nio.ByteBuffer;
 
@@ -116,7 +117,7 @@ public class MikuRenderProgram {
 
     void setToonTexture(boolean hasToon, int textureId) {
         GLES20.glUniform1i(uHasToonLocation, hasToon ? 1 : 0);
-        GLES20.glUniform1f(uToonTextureLocation, 0);
+        GLES20.glUniform1i(uToonTextureLocation, 0);
         if(hasToon) {
             GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
             GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
@@ -124,8 +125,8 @@ public class MikuRenderProgram {
     }
 
     void setTexture(boolean hasTexture, int textureId) {
-        GLES20.glUniform1f(uHasTextureLocation, hasTexture ? 1 : 0);
-        GLES20.glUniform1f(uTextureLocation, 1);
+        GLES20.glUniform1i(uHasTextureLocation, hasTexture ? 1 : 0);
+        GLES20.glUniform1i(uTextureLocation, 1);
         if(hasTexture) {
             GLES20.glActiveTexture(GLES20.GL_TEXTURE1);
             GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
@@ -145,7 +146,7 @@ public class MikuRenderProgram {
 
      void endDraw() {
         GLES20.glDisableVertexAttribArray(aPositionLocation);
-        GLES20.glEnableVertexAttribArray(aUVLocation);
+        GLES20.glDisableVertexAttribArray(aUVLocation);
         GLES20.glDisableVertexAttribArray(aNormalLocation);
         GLES20.glDisableVertexAttribArray(aBoneIndicesLocation);
         GLES20.glDisableVertexAttribArray(aBoneWeightAndEdgeFlagLocation);

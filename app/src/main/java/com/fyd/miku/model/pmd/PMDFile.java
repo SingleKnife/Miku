@@ -132,6 +132,8 @@ public class PMDFile {
             material.vertexIndexOffset =vertexIndexOffset;
             vertexIndexOffset += material.vertexIndicesNum;
             materials.add(material);
+
+            Log.i("mmd", "material: " + material);
         }
     }
 

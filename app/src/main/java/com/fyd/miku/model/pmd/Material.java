@@ -4,7 +4,14 @@ import android.text.TextUtils;
 
 import com.fyd.miku.R;
 
-public class Material {
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+public class Material implements Cloneable{
+    public static final int MAX_BONE_SIZE = 40;
+    public static final int DESIRED_BONE_SIZE = 30;
+
     static String[] toonNames = new String[] {
             "toon01.bmp", "toon02.bmp","toon03.bmp", "toon04.bmp","toon05.bmp",
             "toon06.bmp", "toon07.bmp","toon08.bmp", "toon09.bmp","toon10.bmp",
@@ -26,11 +33,14 @@ public class Material {
     String sphereMapName;   //球面贴图文件
 
     int vertexIndexOffset;  //顶点索引在所有顶点中的偏移量
+    List<Short> boneIndexMapping;
 
     Material() {
         diffuseColor = new float[4];
         specularColor = new float[3];
         ambientColor = new float[3];
+
+        boneIndexMapping = new ArrayList<>();
     }
 
     public String getTextureName() {
@@ -74,11 +84,59 @@ public class Material {
         return vertexIndexOffset;
     }
 
+    public void setVertexIndicesNum(int vertexIndicesNum) {
+        this.vertexIndicesNum = vertexIndicesNum;
+    }
+
+    public void setVertexIndexOffset(int vertexIndexOffset) {
+        this.vertexIndexOffset = vertexIndexOffset;
+    }
+
     public boolean hasToonTexture() {
         return toonIndex != 255;
     }
 
     public boolean hasTexture() {
         return !TextUtils.isEmpty(textureName);
+    }
+
+    public List<Short> getBoneIndexMapping() {
+        return boneIndexMapping;
+    }
+
+    public void addBone(short boneIndex) {
+        boneIndexMapping.add(boneIndex);
+    }
+
+    public int getRelativeBoneSize() {
+        return boneIndexMapping.size();
+    }
+
+    @Override
+    public String toString() {
+        return "Material{" +
+                "diffuseColor=" + Arrays.toString(diffuseColor) +
+                ", specularPower=" + specularPower +
+                ", specularColor=" + Arrays.toString(specularColor) +
+                ", ambientColor=" + Arrays.toString(ambientColor) +
+                ", toonIndex=" + toonIndex +
+                ", edgeFlag=" + edgeFlag +
+                ", vertexIndicesNum=" + vertexIndicesNum +
+                ", textureName='" + textureName + '\'' +
+                ", sphereMapName='" + sphereMapName + '\'' +
+                ", vertexIndexOffset=" + vertexIndexOffset +
+                '}';
+    }
+
+    @Override
+    public Material clone() {
+        Material result = null;
+        try {
+            result = (Material) super.clone();
+            result.boneIndexMapping = new ArrayList<>();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 }

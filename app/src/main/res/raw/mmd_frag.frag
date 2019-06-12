@@ -42,7 +42,7 @@ void main() {
     if(uHasTexture) {
         vec4 textureColor = texture2D(uTextrue, UV);
         color *= textureColor.rgb;
-//        alpha *= textureColor.a;
+        alpha *= textureColor.a;
     }
 
     if(alpha == 0.0) {
@@ -52,7 +52,7 @@ void main() {
     if(uSpecularPower > 0.0) {
         vec3 halfVec = normalize(eyeDir + lightDir);
         vec3 specularColor = uSpecular * uLightColor;
-        specularColor = pow(max(0.0, dot(halfVec, normal)), uSpecularPower) * specularColor;
+        specularColor = min(1.0, pow(max(0.0, dot(lightDir, normal)), uSpecularPower)) * specularColor;
 
         color += specularColor;
     }
