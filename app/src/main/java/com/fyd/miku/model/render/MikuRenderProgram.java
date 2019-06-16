@@ -2,6 +2,7 @@ package com.fyd.miku.model.render;
 
 import android.content.Context;
 import android.opengl.GLES20;
+import android.util.Log;
 
 import com.fyd.miku.R;
 import com.fyd.miku.helper.ResourceHelper;
@@ -82,8 +83,9 @@ public class MikuRenderProgram {
                 GLES20.GL_FLOAT, false, AllVertex.BYTE_SIZE_PER_VERTEX, allVertex.getUVByteOffset());
         GLES20.glVertexAttribPointer(aNormalLocation, AllVertex.NORMAL_COMPONENT_SIZE,
                 GLES20.GL_FLOAT, false, AllVertex.BYTE_SIZE_PER_VERTEX, allVertex.getNormalByteOffset());
-        GLES20.glVertexAttribPointer(aBoneIndicesLocation, AllVertex.BONE_INDEX_COMPONENT_SIZE,
-                GLES20.GL_UNSIGNED_SHORT, false, AllVertex.BYTE_SIZE_PER_VERTEX, allVertex.getBoneIndexByteOffset());
+//        GLES20.glVertexAttribPointer(aBoneIndicesLocation, AllVertex.BONE_INDEX_COMPONENT_SIZE,
+//                GLES20.GL_UNSIGNED_SHORT, false, AllVertex.BYTE_SIZE_PER_VERTEX, allVertex.getBoneIndexByteOffset());
+
         GLES20.glVertexAttribPointer(aBoneWeightAndEdgeFlagLocation, AllVertex.BONE_WEIGHT_AND_EDGE_FLAG_COMPONENT_SIZE,
                 GLES20.GL_UNSIGNED_BYTE, false, AllVertex.BYTE_SIZE_PER_VERTEX, allVertex.getBoneWeightAndEdgeFlagByteOffset());
         GLES20.glEnableVertexAttribArray(aPositionLocation);
@@ -91,6 +93,14 @@ public class MikuRenderProgram {
         GLES20.glEnableVertexAttribArray(aNormalLocation);
         GLES20.glEnableVertexAttribArray(aBoneIndicesLocation);
         GLES20.glEnableVertexAttribArray(aBoneWeightAndEdgeFlagLocation);
+
+
+    }
+
+    public void bindBoneIndex(ByteBuffer boneIndexBuffer) {
+        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
+        GLES20.glVertexAttribPointer(aBoneIndicesLocation, AllVertex.BONE_INDEX_COMPONENT_SIZE,
+                GLES20.GL_UNSIGNED_SHORT, false, 0, boneIndexBuffer);
     }
 
     public void bindBoneMatrices(float[] boneMatrices) {

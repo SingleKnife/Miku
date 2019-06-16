@@ -11,6 +11,7 @@ import com.fyd.miku.model.vmd.VMDMorph;
 import com.fyd.miku.model.vmd.VMDMotion;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.HashMap;
 import java.util.List;
 
@@ -74,15 +75,6 @@ public class MikuModel {
         return boneManager;
     }
 
-    /*private void reconstructMaterials(List<Material> materials) {
-        meshes = new ArrayList<>();
-        for(Material material : materials) {
-            Mesh mesh = new Mesh();
-            mesh.material = material;
-            meshes.add(mesh);
-        }
-    }*/
-
     private void initBoneFrames(List<VMDMotion> vmdMotions) {
         for(VMDMotion vmdMotion : vmdMotions) {
             String boneName = vmdMotion.getBoneName();
@@ -114,11 +106,16 @@ public class MikuModel {
     }
 
     private void reconstructMaterials(List<Material> materials) {
+        ByteBuffer indicesBuffer = allVertex.getIndices();
+        ByteBuffer verticesBuffer = allVertex.getAllVertices();
+
         for(int m = 0; m < materials.size(); ++m) {
             Material material = materials.get(m);
+            material.initBoneIndexBuffer(verticesBuffer.limit() / AllVertex.BYTE_SIZE_PER_VERTEX);
+            ByteBuffer boneIndexBuffer = material.getBoneIndexBuffer();
+
             Log.i("mmd", "material: " +  m);
-            ByteBuffer indicesBuffer = allVertex.getIndices();
-            ByteBuffer verticesBuffer = allVertex.getAllVertices();
+
             indicesBuffer.position(material.getVertexIndexOffset() * AllVertex.BYTE_SIZE_PER_INDEX);
 
             HashMap<Short, Short> boneMap = new HashMap<>(); //<boneIndexOfAll, boneIndexOfMesh>
@@ -141,8 +138,8 @@ public class MikuModel {
                         boneIndexOfMesh = iterator;
                         iterator++;
                     }
-                    verticesBuffer.position(boneInfoPos);
-                    verticesBuffer.putShort(boneIndexOfMesh);
+                    boneIndexBuffer.position(vertexIndex * 4);
+                    boneIndexBuffer.putShort(boneIndexOfMesh);
 
                     short secondBoneIndexOfAll = verticesBuffer.getShort();
                     boneIndexOfMesh = boneMap.get(secondBoneIndexOfAll);
@@ -152,8 +149,9 @@ public class MikuModel {
                         boneIndexOfMesh = iterator;
                         iterator++;
                     }
-                    verticesBuffer.position(boneInfoPos + 2);
-                    verticesBuffer.putShort(boneIndexOfMesh);
+
+                    boneIndexBuffer.position(vertexIndex * 4 + 2);
+                    boneIndexBuffer.putShort(boneIndexOfMesh);
                 }
                 if(material.getRelativeBoneSize() > Material.DESIRED_BONE_SIZE) {
 

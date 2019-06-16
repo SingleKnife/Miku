@@ -1,7 +1,7 @@
 uniform mat4 uProjectionMatrix;
 uniform mat4 uViewMatrix;
 uniform mat4 uModelMatrix;
-uniform mat4 uBoneMatrices[40];
+uniform mat4 uBoneMatrices[50];
 uniform vec3 uLightDir;
 
 attribute vec3 aPosition;

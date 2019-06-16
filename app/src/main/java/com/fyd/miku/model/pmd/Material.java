@@ -4,13 +4,15 @@ import android.text.TextUtils;
 
 import com.fyd.miku.R;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class Material implements Cloneable{
-    public static final int MAX_BONE_SIZE = 40;
-    public static final int DESIRED_BONE_SIZE = 30;
+    public static final int MAX_BONE_SIZE = 50;
+    public static final int DESIRED_BONE_SIZE = 40;
 
     static String[] toonNames = new String[] {
             "toon01.bmp", "toon02.bmp","toon03.bmp", "toon04.bmp","toon05.bmp",
@@ -34,6 +36,8 @@ public class Material implements Cloneable{
 
     int vertexIndexOffset;  //顶点索引在所有顶点中的偏移量
     List<Short> boneIndexMapping;
+
+    ByteBuffer boneIndexBuffer;
 
     Material() {
         diffuseColor = new float[4];
@@ -110,6 +114,16 @@ public class Material implements Cloneable{
 
     public int getRelativeBoneSize() {
         return boneIndexMapping.size();
+    }
+
+    public ByteBuffer getBoneIndexBuffer() {
+        boneIndexBuffer.position(0);
+        return boneIndexBuffer;
+    }
+
+    public void initBoneIndexBuffer(int vertexNum) {
+        boneIndexBuffer = ByteBuffer.allocateDirect(vertexNum * 4)
+                .order(ByteOrder.nativeOrder());
     }
 
     @Override

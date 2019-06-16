@@ -29,7 +29,8 @@ public class DefaultModelManager {
     private static final String KEY_IS_MODEL_LOADED = "is_model_loaded";
 
     private static final String DEFAULT_MODEL_NAME = "Miku_Hatsune_Ver2.pmd";
-    private static final String DEFAULT_MOTION_FILE = "motion.vmd";
+//    private static final String DEFAULT_MOTION_FILE = "motion.vmd";
+    private static final String DEFAULT_MOTION_FILE = "wavefile_full_miku_v2.vmd";
 
     public static Observable<MikuModel> initAndLoadDefaultModel(final Context context) {
         return copyModelObservable(context)

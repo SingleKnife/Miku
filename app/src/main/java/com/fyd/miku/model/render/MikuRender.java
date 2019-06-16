@@ -120,6 +120,7 @@ public class MikuRender implements Render{
             System.arraycopy(model.getBoneManager().getAllMatrices(), boneIndexOfAll * 16,
                     boneMatrices, i * 16, 16);
         }
+        renderProgram.bindBoneIndex(material.getBoneIndexBuffer());
         renderProgram.bindBoneMatrices(boneMatrices);
 
 
