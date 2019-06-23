@@ -30,9 +30,6 @@ public class MikuRender implements Render{
     private float[] modelMatrix = new float[16];
     private float[] projectionMatrix = new float[16];
 
-    private float[] lightDir = {2f, 2f, 4f};
-    private float[] lightColor = {1.0f, 1.0f, 1.0f};
-
     private float[] boneMatrices = new float[Material.MAX_BONE_SIZE * 16];
 
     public MikuRender(Context context, MikuModel mikuModel) {
@@ -70,10 +67,19 @@ public class MikuRender implements Render{
         renderProgram.useProgram();
     }
 
+    public void setLight(float[] lightDir, float[] lightColor) {
+        renderProgram.setLight(lightDir, lightColor);
+    }
+
     @Override
     public void draw() {
-        renderProgram.setLight(lightDir, lightColor);
-        drawModel(mikuModel);
+        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vertexBufferId);
+        GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, indexBufferId);
+        AllVertex vertexData = mikuModel.getAllVertex();
+        GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, vertexData.getAllVertices().limit(),
+                vertexData.getAllVertices(), GLES20.GL_DYNAMIC_DRAW);
+        renderProgram.bindVertexData(mikuModel.getAllVertex());
+        drawModel();
     }
 
     @Override
@@ -90,20 +96,14 @@ public class MikuRender implements Render{
         GLES20.glDeleteBuffers(2, bufferIds, 0);
     }
 
-    private void drawModel(MikuModel model) {
-        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vertexBufferId);
-        GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, indexBufferId);
-        AllVertex vertexData = mikuModel.getAllVertex();
-        GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, vertexData.getAllVertices().limit(),
-                vertexData.getAllVertices(), GLES20.GL_DYNAMIC_DRAW);
-        renderProgram.bindVertexData(model.getAllVertex());
+    private void drawModel() {
+
 //        GLES20.glEnable(GLES20.GL_BLEND);
-        for(Material material : model.getMaterials()) {
-            drawMaterial(model, material);
+        for(Material material : mikuModel.getMaterials()) {
+            drawMaterial(mikuModel, material);
         }
         renderProgram.endDraw();
-        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
-        GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, 0);
+
     }
 
     private void drawMaterial(MikuModel model, Material material) {

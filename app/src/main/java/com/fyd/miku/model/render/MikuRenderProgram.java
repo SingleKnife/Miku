@@ -161,6 +161,8 @@ public class MikuRenderProgram {
         GLES20.glDisableVertexAttribArray(aBoneIndicesLocation);
         GLES20.glDisableVertexAttribArray(aBoneWeightAndEdgeFlagLocation);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
+        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
+        GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, 0);
     }
 
     void destroy() {
