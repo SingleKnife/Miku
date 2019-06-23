@@ -26,6 +26,7 @@ public class MikuRender implements Render{
 
     private int vertexBufferId;
     private int indexBufferId;
+    private int boneIndexBufferId;
 
     private float[] modelMatrix = new float[16];
     private float[] projectionMatrix = new float[16];
@@ -44,10 +45,11 @@ public class MikuRender implements Render{
         Matrix.scaleM(modelMatrix, 0, 1, 1, -1f);
         generateToonTextures();
 
-        int[] bufferIds = new int[2];
-        GLES20.glGenBuffers(2, bufferIds, 0);
+        int[] bufferIds = new int[3];
+        GLES20.glGenBuffers(3, bufferIds, 0);
         vertexBufferId = bufferIds[0];
         indexBufferId = bufferIds[1];
+        boneIndexBufferId = bufferIds[2];
 
         AllVertex vertexData = mikuModel.getAllVertex();
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vertexBufferId);
@@ -59,12 +61,30 @@ public class MikuRender implements Render{
         GLES20.glBufferData(GLES20.GL_ELEMENT_ARRAY_BUFFER, vertexData.getIndices().limit(),
                 vertexData.getIndices(), GLES20.GL_STATIC_DRAW);
         GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, 0);
+
+        int boneIndexBufferPerMaterial = mikuModel.getMaterials().get(0).getBoneIndexBuffer().limit();
+        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, boneIndexBufferId);
+        GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, boneIndexBufferPerMaterial * mikuModel.getMaterials().size(),
+                null, GLES20.GL_STATIC_DRAW);
+
+        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, boneIndexBufferId);
+        for(int i = 0; i < mikuModel.getMaterials().size(); ++i) {
+            Material material = mikuModel.getMaterials().get(i);
+            GLES20.glBufferSubData(GLES20.GL_ARRAY_BUFFER, i * boneIndexBufferPerMaterial,
+                    material.getBoneIndexBuffer().limit(), material.getBoneIndexBuffer());
+        }
     }
 
     @Override
     public void beginDraw() {
         mikuModel.updateMotion();
         renderProgram.useProgram();
+        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vertexBufferId);
+        GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, indexBufferId);
+        AllVertex vertexData = mikuModel.getAllVertex();
+        GLES20.glBufferSubData(GLES20.GL_ARRAY_BUFFER, 0, vertexData.getAllVertices().limit(),
+                vertexData.getAllVertices());
+        renderProgram.bindVertexData(mikuModel.getAllVertex());
     }
 
     public void setLight(float[] lightDir, float[] lightColor) {
@@ -73,12 +93,6 @@ public class MikuRender implements Render{
 
     @Override
     public void draw() {
-        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vertexBufferId);
-        GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, indexBufferId);
-        AllVertex vertexData = mikuModel.getAllVertex();
-        GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, vertexData.getAllVertices().limit(),
-                vertexData.getAllVertices(), GLES20.GL_DYNAMIC_DRAW);
-        renderProgram.bindVertexData(mikuModel.getAllVertex());
         drawModel();
     }
 
@@ -97,16 +111,15 @@ public class MikuRender implements Render{
     }
 
     private void drawModel() {
-
-//        GLES20.glEnable(GLES20.GL_BLEND);
-        for(Material material : mikuModel.getMaterials()) {
-            drawMaterial(mikuModel, material);
+        for(int i = 0; i < mikuModel.getMaterials().size(); ++i) {
+            drawMaterial(i);
         }
         renderProgram.endDraw();
 
     }
 
-    private void drawMaterial(MikuModel model, Material material) {
+    private void drawMaterial(int materialIndex) {
+        Material material = mikuModel.getMaterials().get(materialIndex);
         renderProgram.setAmbient(material.getAmbientColor());
         renderProgram.setDiffuse(material.getDiffuseColor());
         renderProgram.setSpecular(material.getSpecularColor(), material.getSpecularPower());
@@ -117,11 +130,13 @@ public class MikuRender implements Render{
 
         for(short i = 0; i < material.getBoneIndexMapping().size(); ++i) {
             short boneIndexOfAll = material.getBoneIndexMapping().get(i);
-            System.arraycopy(model.getBoneManager().getAllMatrices(), boneIndexOfAll * 16,
+            System.arraycopy(mikuModel.getBoneManager().getAllMatrices(), boneIndexOfAll * 16,
                     boneMatrices, i * 16, 16);
         }
-        renderProgram.bindBoneIndex(material.getBoneIndexBuffer());
         renderProgram.bindBoneMatrices(boneMatrices);
+        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, boneIndexBufferId);
+        renderProgram.bindBoneIndex(material.getBoneIndexBuffer().limit() * materialIndex);
+        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
 
 
         boolean hasTexture = material.hasTexture();
@@ -140,7 +155,7 @@ public class MikuRender implements Render{
             renderProgram.setTexture(false, -1);
         }
 
-        int indexByteOffset = model.getAllVertex().getIndicesByteOffset(material.getVertexIndexOffset());
+        int indexByteOffset = mikuModel.getAllVertex().getIndicesByteOffset(material.getVertexIndexOffset());
         renderProgram.draw(indexByteOffset, material.getVertexIndicesNum());
     }
 

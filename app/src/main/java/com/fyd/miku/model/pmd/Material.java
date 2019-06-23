@@ -108,7 +108,7 @@ public class Material implements Cloneable{
         return boneIndexMapping;
     }
 
-    public void addBone(short boneIndex) {
+    public void addBone(Short boneIndex) {
         boneIndexMapping.add(boneIndex);
     }
 
@@ -122,7 +122,7 @@ public class Material implements Cloneable{
     }
 
     public void initBoneIndexBuffer(int vertexNum) {
-        boneIndexBuffer = ByteBuffer.allocateDirect(vertexNum * 4)
+        boneIndexBuffer = ByteBuffer.allocateDirect(vertexNum * 2)
                 .order(ByteOrder.nativeOrder());
     }
 

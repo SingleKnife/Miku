@@ -118,8 +118,8 @@ public class MikuModel {
 
             indicesBuffer.position(material.getVertexIndexOffset() * AllVertex.BYTE_SIZE_PER_INDEX);
 
-            HashMap<Short, Short> boneMap = new HashMap<>(); //<boneIndexOfAll, boneIndexOfMesh>
-            short iterator = 0;
+            HashMap<Short, Byte> boneMap = new HashMap<>(); //<boneIndexOfAll, boneIndexOfMesh>
+            byte iterator = 0;
 
             for(int i = 0; i < material.getVertexIndicesNum(); i += 3) {
                 //映射mesh中的骨骼和所有骨骼中的关系，并更新顶点中骨骼数据，这样做是为了以mesh为绘制单元，
@@ -131,15 +131,15 @@ public class MikuModel {
                             + AllVertex.BONE_INDEX_OFFSET ;
                     verticesBuffer.position(boneInfoPos);
                     short firstBoneIndexOfAll = verticesBuffer.getShort();
-                    Short boneIndexOfMesh = boneMap.get(firstBoneIndexOfAll);
+                    Byte boneIndexOfMesh = boneMap.get(firstBoneIndexOfAll);
                     if(boneIndexOfMesh == null) {
                         boneMap.put(firstBoneIndexOfAll, iterator);
                         material.addBone(firstBoneIndexOfAll);
                         boneIndexOfMesh = iterator;
                         iterator++;
                     }
-                    boneIndexBuffer.position(vertexIndex * 4);
-                    boneIndexBuffer.putShort(boneIndexOfMesh);
+                    boneIndexBuffer.position(vertexIndex * 2);
+                    boneIndexBuffer.put(boneIndexOfMesh);
 
                     short secondBoneIndexOfAll = verticesBuffer.getShort();
                     boneIndexOfMesh = boneMap.get(secondBoneIndexOfAll);
@@ -150,8 +150,8 @@ public class MikuModel {
                         iterator++;
                     }
 
-                    boneIndexBuffer.position(vertexIndex * 4 + 2);
-                    boneIndexBuffer.putShort(boneIndexOfMesh);
+                    boneIndexBuffer.position(vertexIndex * 2 + 1);
+                    boneIndexBuffer.put(boneIndexOfMesh);
                 }
                 if(material.getRelativeBoneSize() > Material.DESIRED_BONE_SIZE) {
 

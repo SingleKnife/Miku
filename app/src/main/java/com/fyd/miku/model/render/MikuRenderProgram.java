@@ -97,10 +97,9 @@ public class MikuRenderProgram {
 
     }
 
-    public void bindBoneIndex(ByteBuffer boneIndexBuffer) {
-        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
+    public void bindBoneIndex(int offset) {
         GLES20.glVertexAttribPointer(aBoneIndicesLocation, AllVertex.BONE_INDEX_COMPONENT_SIZE,
-                GLES20.GL_UNSIGNED_SHORT, false, 0, boneIndexBuffer);
+                GLES20.GL_UNSIGNED_BYTE, false, 0, offset);
     }
 
     public void bindBoneMatrices(float[] boneMatrices) {
