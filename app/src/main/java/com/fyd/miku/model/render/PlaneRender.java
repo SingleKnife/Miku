@@ -29,6 +29,9 @@ public class PlaneRender implements Render {
     private int vertexAttributeLocation;
     private int viewMatrixLocation;
     private int projectionMatrixLocation;
+    private int lightSpaceMatrixLocation;
+    private int shadowMapLocation;
+    private int isDrawingShadowLocation;
 
     public void createOnGLThread() {
         String frag = ResourceHelper.getRawResourceString(context, R.raw.plan_frag);
@@ -37,6 +40,9 @@ public class PlaneRender implements Render {
         vertexAttributeLocation = GLES20.glGetAttribLocation(program, "aVertex");
         viewMatrixLocation = GLES20.glGetUniformLocation(program, "uViewMatrix");
         projectionMatrixLocation = GLES20.glGetUniformLocation(program, "uProjectionMatrix");
+        lightSpaceMatrixLocation = GLES20.glGetUniformLocation(program, "uLightSpaceMatrix");
+        shadowMapLocation = GLES20.glGetUniformLocation(program, "uShadowMap");
+        isDrawingShadowLocation = GLES20.glGetUniformLocation(program, "uIsDrawingShadow");
         verticesBuffer = ByteBuffer.allocateDirect(planVertices.length * 4)
                 .order(ByteOrder.nativeOrder())
                 .asFloatBuffer();
@@ -51,18 +57,24 @@ public class PlaneRender implements Render {
     @Override
     public void beginDraw() {
         GLES20.glUseProgram(program);
+        GLES20.glVertexAttribPointer(vertexAttributeLocation, 3, GLES20.GL_FLOAT, false, 8 * 4, verticesBuffer);
+        GLES20.glEnableVertexAttribArray(vertexAttributeLocation);
     }
 
     @Override
     public void draw() {
-        GLES20.glVertexAttribPointer(vertexAttributeLocation, 3, GLES20.GL_FLOAT, false, 8 * 4, verticesBuffer);
-        GLES20.glEnableVertexAttribArray(vertexAttributeLocation);
+        GLES20.glUniform1i(isDrawingShadowLocation, GLES20.GL_FALSE);
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6);
-
-        endDraw();
     }
 
-    private void endDraw() {
+    public void drawShadow(int shadowMap) {
+        GLES20.glUniform1i(isDrawingShadowLocation, GLES20.GL_TRUE);
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, shadowMap);
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6);
+    }
+
+    @Override
+    public void endDraw() {
         GLES20.glDisableVertexAttribArray(vertexAttributeLocation);
     }
 
@@ -75,5 +87,9 @@ public class PlaneRender implements Render {
     public void updateMatrix(float[] projectionMatrix, float[] viewMatrix) {
         GLES20.glUniformMatrix4fv(viewMatrixLocation, 1, false, viewMatrix, 0);
         GLES20.glUniformMatrix4fv(projectionMatrixLocation, 1, false, projectionMatrix, 0);
+    }
+
+    public void updateLightSpaceMatrix(float[] lightSpaceMatrix) {
+        GLES20.glUniformMatrix4fv(lightSpaceMatrixLocation, 1, false, lightSpaceMatrix, 0);
     }
 }

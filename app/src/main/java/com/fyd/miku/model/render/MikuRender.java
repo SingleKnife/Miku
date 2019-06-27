@@ -114,8 +114,12 @@ public class MikuRender implements Render{
         for(int i = 0; i < mikuModel.getMaterials().size(); ++i) {
             drawMaterial(i);
         }
-        renderProgram.endDraw();
 
+    }
+
+    @Override
+    public void endDraw() {
+        renderProgram.endDraw();
     }
 
     private void drawMaterial(int materialIndex) {

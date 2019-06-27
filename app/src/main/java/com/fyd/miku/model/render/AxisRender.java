@@ -68,7 +68,8 @@ public class AxisRender implements Render {
         endDraw();
     }
 
-    private void endDraw() {
+    @Override
+    public void endDraw() {
         GLES20.glDisableVertexAttribArray(vertexAttributeLocation);
     }
 

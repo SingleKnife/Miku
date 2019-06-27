@@ -92,18 +92,26 @@ public class MikuGLRender implements GLSurfaceView.Renderer {
         axisRender.updateMatrix(projectionMatrix, viewMatrix);
         axisRender.draw();
 
-        planRender.beginDraw();
-        planRender.updateMatrix(projectionMatrix, viewMatrix);
-        planRender.draw();
-
         if(mikuRender != null) {
             mikuRender.beginDraw();
             mikuRender.setLight(lightDir, lightColor);
-//            beginDrawShadowMap();
+            beginDrawShadowMap();
+            mikuRender.updateMatrix(lightProjectionMatrix, lightViewMatrix);
+            mikuRender.draw();
+            endDrawShadowMap();
             mikuRender.updateMatrix(projectionMatrix, viewMatrix);
             mikuRender.draw();
-//            endDrawShadowMap();
+            mikuRender.endDraw();
         }
+
+        planRender.beginDraw();
+        beginDrawShadowMap();
+        planRender.updateMatrix(lightProjectionMatrix, lightViewMatrix);
+        planRender.drawShadow(depthMap);
+        endDrawShadowMap();
+        planRender.updateMatrix(projectionMatrix, viewMatrix);
+        planRender.draw();
+        planRender.endDraw();
     }
 
     public void setMikuRender(final MikuRender newRender) {
