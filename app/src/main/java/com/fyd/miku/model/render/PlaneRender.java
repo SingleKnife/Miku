@@ -12,15 +12,19 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
 public class PlaneRender implements Render {
+    private static final float HALF_X = 100;
+    private static final float HALF_Z = 100;
+    private static final float Y = -0.00f;
+
     float planVertices[] = {
             // Positions          // Normals         // Texture Coords
-            25.0f, -0.5f, 25.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,
-            -25.0f, -0.5f, -25.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f,
-            -25.0f, -0.5f, 25.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+            HALF_X, Y, HALF_Z, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,
+            -HALF_X, Y, -HALF_Z, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f,
+            -HALF_X, Y, HALF_Z, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
 
-            25.0f, -0.5f, 25.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,
-            25.0f, -0.5f, -25.0f, 0.0f, 1.0f, 0.0f, 25.0f, 25.0f,
-            - 25.0f, -0.5f, -25.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f
+            HALF_X, Y, HALF_Z, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,
+            HALF_X, Y, -HALF_Z, 0.0f, 1.0f, 0.0f, 25.0f, 25.0f,
+            -HALF_X, Y, -HALF_Z, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f
     };
     private FloatBuffer verticesBuffer;
     private Context context;
@@ -63,7 +67,6 @@ public class PlaneRender implements Render {
 
     @Override
     public void draw() {
-        GLES20.glUniform1i(isDrawingShadowLocation, GLES20.GL_FALSE);
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6);
     }
 
@@ -71,6 +74,7 @@ public class PlaneRender implements Render {
         GLES20.glUniform1i(isDrawingShadowLocation, GLES20.GL_TRUE);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, shadowMap);
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6);
+        GLES20.glUniform1i(isDrawingShadowLocation, GLES20.GL_FALSE);
     }
 
     @Override

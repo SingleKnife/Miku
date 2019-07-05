@@ -36,6 +36,9 @@ import static android.opengl.GLES20.glTexImage2D;
 import static android.opengl.GLES20.glTexParameteri;
 
 public class MikuGLRender implements GLSurfaceView.Renderer {
+    private static final int DEPTH_MAP_WIDTH = 800;
+    private static final int DEPTH_MAP_HEIGHT = 800;
+
     private float[] projectionMatrix = new float[16];
     private float[] viewMatrix = new float[16];
 
@@ -46,12 +49,15 @@ public class MikuGLRender implements GLSurfaceView.Renderer {
     private int depthMapFBO = -1;
     private int depthMap = -1;
 
-    private float[] lightDir = {2f, 2f, 4f};
+    private float[] lightDir = {0f, 32f, 32};
     private float[] lightColor = {1.0f, 1.0f, 1.0f};
+
+    private float[] eyePos = {0, 25, 60};
 
     //光照空间中变换矩阵
     private float[] lightProjectionMatrix = new float[16];
     private float[] lightViewMatrix = new float[16];
+    private float[] lightSpaceMatrix = new float[16];
 
     private final Queue<Runnable> runOnDraw;
 
@@ -72,14 +78,17 @@ public class MikuGLRender implements GLSurfaceView.Renderer {
 
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
+        Log.i("fyd", "width: " + width + ", height: " + height);
         GLES20.glViewport(0, 0, width, height);
         Matrix.perspectiveM(projectionMatrix, 0, 45, (float)width/(float)height, 1, 1000);
-        Matrix.setLookAtM(viewMatrix, 0, 0, 10, 40,
-                0, 7, 0, 0, 1, 0);
-        generateFBO(width, height);
-        Matrix.orthoM(lightProjectionMatrix, 0, -10f, 10f, -10f, 10f, 0.1f, 15.5f);
+        Matrix.setLookAtM(viewMatrix, 0, eyePos[0], eyePos[1], eyePos[2],
+                0, 10, 0, 0, 1, 0);
+        Matrix.orthoM(lightProjectionMatrix, 0, -50f, 50f, -50f, 50f, 0.1f, 100f);
         Matrix.setLookAtM(lightViewMatrix, 0, lightDir[0], lightDir[1], lightDir[2],
                 0, 0, 0, 0, 1, 0);
+        Matrix.multiplyMM(lightSpaceMatrix, 0, lightProjectionMatrix, 0, lightViewMatrix, 0);
+        generateFBO(width, height);
+
     }
 
     @Override
@@ -97,7 +106,7 @@ public class MikuGLRender implements GLSurfaceView.Renderer {
             mikuRender.setLight(lightDir, lightColor);
             beginDrawShadowMap();
             mikuRender.updateMatrix(lightProjectionMatrix, lightViewMatrix);
-            mikuRender.draw();
+            mikuRender.drawShadow(depthMap);
             endDrawShadowMap();
             mikuRender.updateMatrix(projectionMatrix, viewMatrix);
             mikuRender.draw();
@@ -109,6 +118,7 @@ public class MikuGLRender implements GLSurfaceView.Renderer {
         planRender.updateMatrix(lightProjectionMatrix, lightViewMatrix);
         planRender.drawShadow(depthMap);
         endDrawShadowMap();
+        planRender.updateLightSpaceMatrix(lightSpaceMatrix);
         planRender.updateMatrix(projectionMatrix, viewMatrix);
         planRender.draw();
         planRender.endDraw();
@@ -151,6 +161,7 @@ public class MikuGLRender implements GLSurfaceView.Renderer {
 
     private void beginDrawShadowMap() {
         GLES20.glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+        GLES20.glCullFace(GLES20.GL_FRONT);
     }
 
     private void endDrawShadowMap() {
@@ -186,5 +197,17 @@ public class MikuGLRender implements GLSurfaceView.Renderer {
             Log.e("fyd", "GL_FRAMEBUFFER_COMPLETE failed, CANNOT use FBO");
             throw new RuntimeException("GL_FRAMEBUFFER_COMPLETE failed, CANNOT use FBO");
         }
+    }
+
+    private void calculateLightProjection() {
+        float mikuHeight = 20f;
+        float mikuX = 0f;
+        float mikuZ = 0f;
+
+        double ligthAngle = Math.atan(lightDir[1] / Math.sqrt(lightDir[0] * lightDir[0] + lightDir[2] * lightDir[2]));
+        float halfY = (float) (mikuHeight * Math.cos(ligthAngle));
+        float halfX = halfY;
+
+
     }
 }

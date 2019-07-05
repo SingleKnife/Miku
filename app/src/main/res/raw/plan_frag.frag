@@ -11,7 +11,7 @@ float calculateShadow() {
     float cloestDepth = texture2D(uShadowMap, projCoords.xy).r;
     float currentDepth = projCoords.z;
 
-    float shadow = currentDepth > cloestDepth ? 1.0 : 0.0;
+    float shadow = currentDepth - 0.005> cloestDepth ? 1.0 : 0.0;
 
     return shadow;
 }

@@ -38,6 +38,8 @@ public class MikuRenderProgram {
     private int uHasTextureLocation;
     private int uTextureLocation;
 
+    private int uIsDrawingShadowLocation;
+
     private int program;
 
 
@@ -70,6 +72,8 @@ public class MikuRenderProgram {
 
         uHasTextureLocation = GLES20.glGetUniformLocation(program, "uHasTexture");
         uTextureLocation = GLES20.glGetUniformLocation(program, "uTextrue");
+
+        uIsDrawingShadowLocation = GLES20.glGetUniformLocation(program, "uIsDrawingShadow");
     }
 
     public void useProgram() {
@@ -162,6 +166,14 @@ public class MikuRenderProgram {
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
         GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, 0);
+    }
+
+    void beginDrawShadow() {
+        GLES20.glUniform1i(uIsDrawingShadowLocation, GLES20.GL_TRUE);
+    }
+
+    void endDrawShadow() {
+        GLES20.glUniform1i(uIsDrawingShadowLocation, GLES20.GL_FALSE);
     }
 
     void destroy() {

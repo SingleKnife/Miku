@@ -96,6 +96,12 @@ public class MikuRender implements Render{
         drawModel();
     }
 
+    public void drawShadow(int shadowMap) {
+        renderProgram.beginDrawShadow();
+        drawModel();
+        renderProgram.endDrawShadow();
+    }
+
     @Override
     public void updateMatrix(float[] projectionMatrix, float[] viewMatrix) {
         Matrix.multiplyMM(this.projectionMatrix, 0, projectionMatrix, 0, viewMatrix, 0);

@@ -12,6 +12,6 @@ void main() {
     gl_Position = uProjectionMatrix * uViewMatrix * vec4(aVertex, 1.0);
     vertex = aVertex;
     if(!uIsDrawingShadow) {
-        lightSpaceVertex = uLightSpaceMatrix * vec4(aVertex, 1.0);
     }
+    lightSpaceVertex = uLightSpaceMatrix * vec4(aVertex, 1.0);
 }

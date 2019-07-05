@@ -13,6 +13,7 @@ uniform vec4 uDiffuse;
 uniform float uSpecularPower;
 uniform vec3 uSpecular;
 uniform vec3 uAmbient;
+uniform bool uIsDrawingShadow;
 
 varying vec2 UV;
 varying vec3 normal;
@@ -22,6 +23,9 @@ varying vec3 lightDir;
 varying float edgeFlag;
 
 void main() {
+    if(uIsDrawingShadow) {
+        return;
+    }
     vec3 eyeDir = normalize(fragPos);
     float ln = dot(lightDir, normal);
     ln = 0.5 - ln * 0.5;
