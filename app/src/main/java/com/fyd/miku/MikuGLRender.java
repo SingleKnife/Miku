@@ -49,7 +49,7 @@ public class MikuGLRender implements GLSurfaceView.Renderer {
     private int depthMapFBO = -1;
     private int depthMap = -1;
 
-    private float[] lightDir = {0f, 32f, 32};
+    private float[] lightDir = {32f, 32f, 32};
     private float[] lightColor = {1.0f, 1.0f, 1.0f};
 
     private float[] eyePos = {0, 25, 60};
@@ -58,6 +58,9 @@ public class MikuGLRender implements GLSurfaceView.Renderer {
     private float[] lightProjectionMatrix = new float[16];
     private float[] lightViewMatrix = new float[16];
     private float[] lightSpaceMatrix = new float[16];
+
+    private float halfDepthMapWidth;
+    private float halfDepthMapHeight;
 
     private final Queue<Runnable> runOnDraw;
 
@@ -73,7 +76,7 @@ public class MikuGLRender implements GLSurfaceView.Renderer {
         axisRender.createOnGlThread();
         planRender.createOnGLThread();
         GLES20.glEnable(GLES20.GL_DEPTH_TEST);
-
+        calculateLightProjection();
     }
 
     @Override
@@ -97,9 +100,9 @@ public class MikuGLRender implements GLSurfaceView.Renderer {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
         runAll();
 
-        axisRender.beginDraw();
-        axisRender.updateMatrix(projectionMatrix, viewMatrix);
-        axisRender.draw();
+//        axisRender.beginDraw();
+//        axisRender.updateMatrix(projectionMatrix, viewMatrix);
+//        axisRender.draw();
 
         if(mikuRender != null) {
             mikuRender.beginDraw();
@@ -201,13 +204,9 @@ public class MikuGLRender implements GLSurfaceView.Renderer {
 
     private void calculateLightProjection() {
         float mikuHeight = 20f;
-        float mikuX = 0f;
-        float mikuZ = 0f;
 
         double ligthAngle = Math.atan(lightDir[1] / Math.sqrt(lightDir[0] * lightDir[0] + lightDir[2] * lightDir[2]));
-        float halfY = (float) (mikuHeight * Math.cos(ligthAngle));
-        float halfX = halfY;
-
-
+        halfDepthMapHeight = (float) (mikuHeight * Math.cos(ligthAngle)) + 10;
+        halfDepthMapWidth = halfDepthMapHeight;
     }
 }

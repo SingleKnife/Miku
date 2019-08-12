@@ -20,7 +20,7 @@ void main() {
     if(uIsDrawingShadow) {
         return;
     }
-    vec4 color = vec4(1.0, 0.0, 0.0, 1.0);
+    vec4 color = vec4(1.0, 1.0, 1.0, 1.0);
     float shadow = calculateShadow();
     color = color * (1.0 - shadow);
     gl_FragColor = color;

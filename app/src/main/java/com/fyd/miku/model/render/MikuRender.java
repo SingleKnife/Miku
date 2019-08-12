@@ -42,6 +42,7 @@ public class MikuRender implements Render{
         Log.i("MikuRender", "createOnGLThread: " + Thread.currentThread());
         renderProgram = new MikuRenderProgram(context);
         Matrix.setIdentityM(modelMatrix, 0);
+//        Matrix.translateM(modelMatrix, 0, 0, 1f, 0);
         Matrix.scaleM(modelMatrix, 0, 1, 1, -1f);
         generateToonTextures();
 

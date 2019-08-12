@@ -14,7 +14,7 @@ import java.nio.FloatBuffer;
 public class PlaneRender implements Render {
     private static final float HALF_X = 100;
     private static final float HALF_Z = 100;
-    private static final float Y = -0.00f;
+    private static final float Y = 0.00f;
 
     float planVertices[] = {
             // Positions          // Normals         // Texture Coords
