@@ -4,7 +4,7 @@
 - 关键帧插值实现动画播放，使用CCD(循环坐标降解法)实现骨骼动画
 - 使用bullet物理引擎实现头发，衣服物理模拟
 
-![image](https://github.com/SingleKnife/Miku/images/sample.gif)
+![image](https://github.com/SingleKnife/Miku/blob/master/images/sample.gif)
 
 相关知识：
 1. 文件格式解析  
