@@ -6,6 +6,9 @@
 
 ![image](https://github.com/SingleKnife/Miku/blob/master/images/sample.gif)
 
+参考项目： https://github.com/benikabocha/saba
+基于桌面端的OpenGL项目,支持mmd的各种格式  
+
 相关资料：
 1. 文件格式解析  
 mmd: https://mikumikudance.fandom.com/wiki/MMD:Polygon_Model_Data
